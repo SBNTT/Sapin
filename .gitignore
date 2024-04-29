@@ -3,6 +3,8 @@
 
 examples/dev
 
+site
+
 **/var
 **/vendor
 **/.php-cs-fixer.cache
