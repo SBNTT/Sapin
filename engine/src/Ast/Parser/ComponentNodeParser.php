@@ -22,19 +22,19 @@ final readonly class ComponentNodeParser
             class: $componentClass,
         );
 
-        $viewStart = strpos($componentClassCode, '<template')
+        $templateStart = strpos($componentClassCode, '<template')
             ?: throw new Exception(sprintf(
                 'Could not find <template> opening tag for "%s" class',
                 $componentClass->getName()
             ));
 
-        $viewEnd = strpos($componentClassCode, '</template>')
+        $templateEnd = strpos($componentClassCode, '</template>')
             ?: throw new Exception(sprintf(
                 'Could not find <template> closing tag for "%s" class',
                 $componentClass->getName()
             ));
 
-        $template = trim(substr($componentClassCode, $viewStart, $viewEnd + strlen('</template>') - $viewStart), "\n\r");
+        $template = trim(substr($componentClassCode, $templateStart, $templateEnd + strlen('</template>') - $templateStart), "\n\r");
         $componentNode->addChild((new TemplateNodeParser())->parse($template));
 
         return $componentNode;

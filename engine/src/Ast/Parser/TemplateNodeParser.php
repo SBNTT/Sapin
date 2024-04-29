@@ -16,7 +16,7 @@ final readonly class TemplateNodeParser
         $html5 = new HTML5();
         $document = $html5->loadHTML($html);
 
-        $viewNode = new TemplateNode();
+        $templateNode = new TemplateNode();
 
         /** @var \DOMNode $templateDomNode */
         $templateDomNode = $document->getElementsByTagName('template')[0];
@@ -38,13 +38,13 @@ final readonly class TemplateNodeParser
                 1,
             );
 
-            $viewNode->addUse($className, $use);
+            $templateNode->addUse($className, $use);
         }
 
-        $viewNode->addChildren(
-            (new TemplateElementNodeParser())->parseChildren($templateDomNode, $viewNode),
+        $templateNode->addChildren(
+            (new TemplateElementNodeParser())->parseChildren($templateDomNode, $templateNode),
         );
 
-        return $viewNode;
+        return $templateNode;
     }
 }

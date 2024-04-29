@@ -18,7 +18,7 @@ final readonly class TemplateElementNodeParser
     /**
      * @throws \Exception
      */
-    public function parse(DOMNode $domNode, TemplateNode $viewNode): ?TemplateElementNode
+    public function parse(DOMNode $domNode, TemplateNode $templateNode): ?TemplateElementNode
     {
         if ($domNode instanceof DOMComment) {
             return null;
@@ -27,9 +27,9 @@ final readonly class TemplateElementNodeParser
                 content: trim($domNode->nodeValue ?? ''),
             );
         } elseif ($domNode instanceof DOMElement) {
-            $elementNode = (new HtmlTagNodeParser())->parse($domNode, $viewNode);
+            $elementNode = (new HtmlTagNodeParser())->parse($domNode, $templateNode);
 
-            $elementNode->addChildren($this->parseChildren($domNode, $viewNode));
+            $elementNode->addChildren($this->parseChildren($domNode, $templateNode));
 
             if (($slotAttributeValue = $domNode->attributes->getNamedItem(':slot')?->nodeValue) !== null) {
                 return new SlotContentNode(
@@ -60,11 +60,11 @@ final readonly class TemplateElementNodeParser
      * @return AbstractNode[]
      * @throws \Exception
      */
-    public function parseChildren(DOMNode $domNode, TemplateNode $viewNode): array
+    public function parseChildren(DOMNode $domNode, TemplateNode $templateNode): array
     {
         return array_filter(
             array_map(
-                fn (DOMNode $childNode) => $this->parse($childNode, $viewNode),
+                fn (DOMNode $childNode) => $this->parse($childNode, $templateNode),
                 iterator_to_array($domNode->childNodes),
             ),
             fn (?AbstractNode $node) => $node !== null && (!($node instanceof TextNode) || !$node->isEmpty()),

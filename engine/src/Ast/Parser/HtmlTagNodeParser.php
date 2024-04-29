@@ -10,18 +10,17 @@ use Sapin\Ast\Node\Template\HtmlTagNode;
 use Sapin\Ast\Node\Template\SlotDeclarationNode;
 use Sapin\Ast\Node\Template\TemplateNode;
 use Sapin\Ast\Node\Template\TextNode;
-use Sapin\ComponentUtils;
 
 final readonly class HtmlTagNodeParser
 {
     private const array RESERVED_DYNAMIC_ATTRIBUTES = [
-        'foreach', 'if', 'else-if', 'else', 'slot'
+        'foreach', 'for', 'if', 'else-if', 'else', 'slot'
     ];
 
     /**
      * @throws \Exception
      */
-    public function parse(DOMNode $domNode, TemplateNode $viewNode): HtmlTagNode|ComponentCallNode|FragmentNode|SlotDeclarationNode
+    public function parse(DOMNode $domNode, TemplateNode $templateNode): HtmlTagNode|ComponentCallNode|FragmentNode|SlotDeclarationNode
     {
         if ($domNode->nodeName === 'fragment') {
             return new FragmentNode();
@@ -52,7 +51,7 @@ final readonly class HtmlTagNodeParser
             }
         }
 
-        return ($componentFqn = $viewNode->getUse($domNode->nodeName)) !== null
+        return ($componentFqn = $templateNode->getUse($domNode->nodeName)) !== null
             ? new ComponentCallNode(
                 componentFqn: $componentFqn,
                 props: $dynamicAttributes,
