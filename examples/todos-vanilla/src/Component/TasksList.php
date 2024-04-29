@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Component;
+
+use App\Model\Task;
+use App\Model\TaskState;
+
+final readonly class TasksList
+{
+    /** @param Task[] $tasks */
+    public function __construct(
+        public array $tasks,
+    ) {}
+
+    public function getTasksStates(): array
+    {
+        return TaskState::cases();
+    }
+
+    public function getTaskStateDisplayName(TaskState $taskState): string
+    {
+        return ucfirst(str_replace('_', ' ', strtolower($taskState->name)));
+    }
+
+    public function getTaskStatIcon(TaskState $taskState): string
+    {
+        return match ($taskState) {
+            TaskState::PENDING => 'list',
+            TaskState::IN_PROGRESS => 'hourglass_top',
+            TaskState::DONE => 'task_alt',
+        };
+    }
+} ?>
+<template :uses="
+    App\Component\TaskListItem,
+">
+    <fragment :foreach="$this->getTasksStates() as $taskState">
+        <h2 class="flex ml-4 text-2xl items-center">
+            <span class="material-symbols-outlined">
+                {{ $this->getTaskStatIcon($taskState) }}
+            </span>
+            <span class="ml-3">
+                {{ $this->getTaskStateDisplayName($taskState) }}
+            </span>
+        </h2>
+
+        <ul class="flex flex-col mt-2 mb-6 gap-3">
+            <TaskListItem
+                    :foreach="$this->tasks as $task"
+                    :if="$task->state === $taskState"
+                    :task="$task"
+            />
+        </ul>
+    </fragment>
+</template>
+

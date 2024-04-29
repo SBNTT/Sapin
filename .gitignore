@@ -1,0 +1,10 @@
+.DS_Store
+.idea
+
+examples/dev
+
+**/var
+**/vendor
+**/.php-cs-fixer.cache
+
+engine/composer.lock

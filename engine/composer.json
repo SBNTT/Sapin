@@ -1,0 +1,29 @@
+{
+    "name": "sapin/engine",
+    "version": "0.1.0",
+    "require": {
+        "php": ">=8.3",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "nette/php-generator": "^4.1",
+        "nikic/php-parser": "^5.0",
+        "masterminds/html5": "^2.9"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "friendsofphp/php-cs-fixer": "^3.54"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sapin\\": "src/"
+        }
+    },
+    "scripts": {
+        "lint": [
+            "php -d memory_limit=-1 vendor/bin/phpstan analyze"
+        ],
+        "format": [
+            "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src"
+        ]
+    }
+}
