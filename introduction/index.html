@@ -778,11 +778,9 @@
 
 
 <h1 id="introduction">Introduction</h1>
-<p>A Sapin component consists of a plain php class, associated with an html 
-template contained in a <code class="language-html highlight"><span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span></code> tag.</p>
-<p>The template part of a Sapin component uses an HTML based syntax and  must takes place outside php tag, and 
-contained in a <code class="language-html highlight"><span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span></code> tag.</p>
-<p>The component compiler provides support for special attributes, and an interpolation syntax which should contains
+<p>A Sapin component consists of a php class associated with an html template contained in a <code class="language-html highlight"><span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span></code> tag.</p>
+<p>The template section of a Sapin component is written in HTML based syntax and  must take place outside the php tags.</p>
+<p>The component compiler provides support for special attributes, and an interpolation syntax which can contains
 php expressions. There is no "language in the language", just php in html.</p>
 <div class="language-html+php highlight"><span class="filename">The Greeter component</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">&lt;?php</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -799,9 +797,8 @@ php expressions. There is no "language in the language", just php in html.</p>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="p">&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Hello, {{ $this-&gt;name }}!<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
 </span></code></pre></div>
-<p>As you can see, these two parts belongs to the same file somewhat like Vue.js.
-Since it is legal to mix HTML and PHP in the same file, your favorite editor 
-will not complains about that.</p>
+<p>As you can see, these two parts belong to the same file somewhat like Vue.js. Since it is legal to mix HTML 
+and PHP in the same file, your favorite editor will not complain about it.</p>
 <div class="admonition tip">
 <p class="admonition-title">phtml for the win !!</p>
 <p>The idea of mixing HTML and PHP may sounds terrible. I mean, in most case, it is <img alt="🙃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f643.svg" title=":upside_down:" />.

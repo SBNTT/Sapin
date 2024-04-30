@@ -772,20 +772,20 @@
 
   <h1>Interpolation</h1>
 
-<p>The interpolation syntax allow you to inject some data from php inside html tags. it consists of a php
-expression contained between double curly braces. The php expression must resolve to a stringable data.</p>
+<p>The interpolation syntax allow you to inject some data from php inside html tags. It consists of a php
+expression between two curly braces. The php expression must be convertable into a string (implement Stringable
+or be a string).</p>
 <div class="language-html highlight"><span class="filename">Basic Interpolation</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Hello, {{ $this-&gt;name }}!<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
 </span></code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>Note that you have access to <code class="language-php highlight"><span class="x">$this</span></code>. The same applies to any other php expression belonging to the
-template part of a component template.</p>
+<div class="language-html highlight"><span class="filename">Interpolation within an html attribute</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;item-{{ $this-&gt;id }}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You have access to <code class="language-php highlight"><span class="x">$this</span></code>. The same applies to any other php expression belonging to the
+template section of a component.</p>
 <p>This is because the template part of a Sapin component is compiled to a method that belong to a copy of your 
 class, giving it access to <code class="language-php highlight"><span class="x">$this</span></code>.</p>
 </div>
-<p>It can also be used inside static attributes, like so:</p>
-<div class="language-html highlight"><span class="filename">Interpolation in static attribute</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;item-{{ $this-&gt;id }}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-</span></code></pre></div>
 
 
 

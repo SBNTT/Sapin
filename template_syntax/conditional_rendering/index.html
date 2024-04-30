@@ -869,7 +869,7 @@
 
 <h2 id="if">If</h2>
 <p>The special <code>:if</code> attribute should be used to allow a block to render only under certain circumstances.
-Its value must be a valid php expression that resolves to a boolean value.</p>
+Its value must be a valid php boolean expression.</p>
 <p>In the following example, the entire <code class="language-html highlight"><span class="p">&lt;</span><span class="nt">span</span><span class="p">&gt;</span></code> tag will <strong>not</strong> be rendered if <code class="language-php highlight"><span class="x">$this-&gt;a &gt; $this-&gt;b</span></code>
 resolves to <code class="language-php highlight"><span class="x">false</span></code>
 <div class="language-html highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">&lt;</span><span class="nt">span</span> <span class="na">:if</span><span class="o">=</span><span class="s">&quot;$this-&gt;a &gt; $this-&gt;b&quot;</span><span class="p">&gt;</span>

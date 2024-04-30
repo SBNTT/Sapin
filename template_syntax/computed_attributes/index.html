@@ -772,9 +772,9 @@
 
   <h1>Computed attributes</h1>
 
-<p>When any of your attributes is prefixed with a colon, the output of the given expression will be used as the
-attribute value (the colon character will be dropped).</p>
-<p>The attribute value must be a php expression which resolve to a stringable data.
+<p>When any of your attributes is prefixed with a colon (<code>:</code>), the output of the given expression will be used as the
+attribute value (the colon character will be dropped during rendering).</p>
+<p>The attribute value must be a php expression which resolves to a stringable data.
 <div class="language-html highlight"><span class="filename">Computed attribute example</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">&lt;</span><span class="nt">div</span> <span class="na">:id</span><span class="o">=</span><span class="s">&quot;$this-&gt;myId&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </span></code></pre></div>
 In this case, if your component class has a property <code>myId</code> that has <code>42</code> as a value, the div above will render as
