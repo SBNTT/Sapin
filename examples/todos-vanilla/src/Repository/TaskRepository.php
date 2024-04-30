@@ -70,7 +70,7 @@ final class TaskRepository
         $statement->bindValue(':id', $id, SQLITE3_INTEGER);
         $statement->bindValue(':state', $state->value, SQLITE3_INTEGER);
 
-        return !($statement->execute() === false);
+        return $statement->execute() !== false;
     }
 
     public function deleteOne(int $id): bool
@@ -78,6 +78,6 @@ final class TaskRepository
         $statement = $this->database->prepare("DELETE FROM task WHERE id = :id");
         $statement->bindValue(':id', $id, SQLITE3_INTEGER);
 
-        return !($statement->execute() === false);
+        return $statement->execute() !== false;
     }
 }
