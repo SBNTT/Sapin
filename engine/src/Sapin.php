@@ -12,10 +12,14 @@ use Throwable;
 abstract class Sapin
 {
     private static ?string $cacheDirectory = null;
+    private static bool $disableIncrementalCompilation = false;
 
-    public static function configure(string $cacheDirectory): void
-    {
+    public static function configure(
+        string $cacheDirectory,
+        bool $disableIncrementalCompilation = false
+    ): void {
         self::$cacheDirectory = $cacheDirectory;
+        self::$disableIncrementalCompilation = $disableIncrementalCompilation;
 
         spl_autoload_register(static function ($class) {
             try {
@@ -61,7 +65,8 @@ abstract class Sapin
         $componentFilePath = self::resolveClassFilePath($componentFqn);
         $compiledComponentFilePath = self::resolveCompiledComponentFilePath($componentFqn);
 
-        if (file_exists($compiledComponentFilePath)
+        if (!self::$disableIncrementalCompilation
+            && file_exists($compiledComponentFilePath)
             && filemtime($compiledComponentFilePath) > filemtime($componentFilePath)
         ) {
             return;
