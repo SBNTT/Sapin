@@ -28,7 +28,6 @@ final class TemplateNode extends AbstractNode
      */
     public function addUse(string $componentName, string $componentFqn): void
     {
-        $componentName = strtolower($componentName);
         array_key_exists($componentName, $this->usesMap)
         && throw new Exception('Another component named "' . $componentName . '" already exists.');
 

@@ -56,7 +56,7 @@ final readonly class HtmlTagNodeParser
                 componentFqn: $componentFqn,
                 props: $dynamicAttributes,
             ) : new HtmlTagNode(
-                name: $domNode->nodeName,
+                name: strtolower($domNode->nodeName),
                 staticAttributes: $staticAttributes,
                 dynamicAttributes: $dynamicAttributes,
             );

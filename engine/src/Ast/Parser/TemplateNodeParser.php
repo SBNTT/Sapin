@@ -2,24 +2,21 @@
 
 namespace Sapin\Ast\Parser;
 
-use DOMDocument;
-use Masterminds\HTML5;
+use DOMNode;
+use Exception;
+use Masterminds\HTML5\Parser\DOMTreeBuilder;
+use Masterminds\HTML5\Parser\Scanner;
+use Masterminds\HTML5\Parser\Tokenizer;
 use Sapin\Ast\Node\Template\TemplateNode;
 
 final readonly class TemplateNodeParser
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function parse(string $html): TemplateNode
     {
-        $html5 = new HTML5();
-        $document = $html5->loadHTML($html);
-
-        $templateNode = new TemplateNode();
-
-        /** @var \DOMNode $templateDomNode */
-        $templateDomNode = $document->getElementsByTagName('template')[0];
+        $templateDomNode = $this->parseHtmlTemplate($html);
 
         $usesAttribute = $templateDomNode->attributes?->getNamedItem(':uses');
 
@@ -28,13 +25,15 @@ final readonly class TemplateNodeParser
             ? preg_split('/\s*,\s*/', trim($usesAttribute->nodeValue ?? '', ", \n\r\t\v\0"))
             : [];
 
+        $templateNode = new TemplateNode();
+
         foreach ($uses as $use) {
             if (!class_exists($use)) {
-                throw new \Exception(sprintf('Could not found class "%s"', $use));
+                throw new Exception(sprintf('Could not found class "%s"', $use));
             }
 
             $className = substr(
-                strrchr($use, "\\") ?: throw new \Exception(sprintf('Invalid use: "%s"', $use)),
+                strrchr($use, "\\") ?: throw new Exception(sprintf('Invalid use: "%s"', $use)),
                 1,
             );
 
@@ -46,5 +45,27 @@ final readonly class TemplateNodeParser
         );
 
         return $templateNode;
+    }
+
+    private function parseHtmlTemplate(string $html): DOMNode
+    {
+        // Default options from HTML5 class
+        $options = [
+            // Whether the serializer should aggressively encode all characters as entities.
+            'encode_entities' => false,
+
+            // Prevents the parser from automatically assigning the HTML5 namespace to the DOM document.
+            'disable_html_ns' => false,
+        ];
+
+        $events = new DOMTreeBuilder(false, $options);
+        $scanner = new Scanner($html, 'UTF-8');
+        $parser = new Tokenizer($scanner, $events, Tokenizer::CONFORMANT_XML);
+
+        $parser->parse();
+
+        // $errors = $events->getErrors();
+
+        return $events->document()->getElementsByTagName('template')[0];
     }
 }
