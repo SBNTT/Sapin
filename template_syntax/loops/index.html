@@ -916,7 +916,7 @@
   <h1>Loops</h1>
 
 <h2 id="foreach">Foreach</h2>
-<p>Use the special <code>:foreach</code> on a block that needs to be rendered as many times as there are elements in a list.</p>
+<p>Use the special <code>:foreach</code> attribute on a block that needs to be rendered as many times as there are elements in a list.</p>
 <p>Its value must be a valid plain php <code>foreach</code> expression.
 <div class="language-html highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">:foreach</span><span class="o">=</span><span class="s">&quot;$this-&gt;fruits as $fruit&quot;</span><span class="p">&gt;</span>
@@ -954,7 +954,7 @@ output of the conditional expression.</p>
 <h3 id="looping-attribute-first">Looping attribute first</h3>
 <p>When using one of the looping attributes first, the only conditional attribute allowed is <code>:if</code>. In this situation,
 the conditional expression acts as a <strong>filter</strong> on the list (imagine an if statement inside a for[<em>each</em>] loop).</p>
-<p>This template only render numbers from the array that are even:
+<p>This template only render even numbers:
 <div class="language-html highlight"><span class="filename">Filter array's elements to render</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">&lt;</span><span class="nt">span</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="na">:foreach</span><span class="o">=</span><span class="s">&quot;$this-&gt;numbers as $number&quot;</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="na">:if</span><span class="o">=</span><span class="s">&quot;$number % 2 == 0&quot;</span> 
