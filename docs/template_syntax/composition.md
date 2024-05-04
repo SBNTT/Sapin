@@ -16,7 +16,7 @@ final readonly class Greeter
 </template>
 ```
 
-In order to use it from another component template, you have to import it using the `:uses` attribute on the
+In order to use it in another component template, you have to import it using the `:uses` attribute on the
 `#!html <template>` tag first.
 
 All the required `Greeter` component constructor arguments must be set using computed attributes. The order does

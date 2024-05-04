@@ -1,7 +1,7 @@
-When any of your attributes is prefixed with a colon, the output of the given expression will be used as the
-attribute value (the colon character will be dropped).
+When any of your attributes is prefixed with a colon (`:`), the output of the given expression will be used as the
+attribute value (the colon character will be dropped during rendering).
 
-The attribute value must be a php expression which resolve to a stringable data.
+The attribute value must be a php expression which resolves to a stringable data.
 ```html title="Computed attribute example"
 <div :id="$this->myId"></div>
 ```

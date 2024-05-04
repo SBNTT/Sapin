@@ -1,6 +1,6 @@
 ## If
 The special `:if` attribute should be used to allow a block to render only under certain circumstances.
-Its value must be a valid php expression that resolves to a boolean value.
+Its value must be a valid php boolean expression.
 
 In the following example, the entire `#!html <span>` tag will **not** be rendered if `#!php $this->a > $this->b`
 resolves to `#!php false`

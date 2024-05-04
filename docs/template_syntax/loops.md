@@ -1,5 +1,5 @@
 ## Foreach
-Use the special `:foreach` on a block that needs to be rendered as many times as there are elements in a list.
+Use the special `:foreach` attribute on a block that needs to be rendered as many times as there are elements in a list.
 
 Its value must be a valid plain php `foreach` expression.
 ```html
@@ -48,7 +48,7 @@ This template will or will not render the **entire** array (imagine a for[*each*
 When using one of the looping attributes first, the only conditional attribute allowed is `:if`. In this situation,
 the conditional expression acts as a **filter** on the list (imagine an if statement inside a for[*each*] loop).
 
-This template only render numbers from the array that are even:
+This template only render even numbers:
 ```html title="Filter array's elements to render"
 <span
     :foreach="$this->numbers as $number"

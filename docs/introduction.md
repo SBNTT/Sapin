@@ -1,12 +1,10 @@
 # Introduction
 
-A Sapin component consists of a plain php class, associated with an html 
-template contained in a `#!html <template>` tag.
+A Sapin component consists of a php class associated with an html template contained in a `#!html <template>` tag.
 
-The template part of a Sapin component uses an HTML based syntax and  must takes place outside php tag, and 
-contained in a `#!html <template>` tag.
+The template section of a Sapin component is written in HTML based syntax and  must take place outside the php tags.
 
-The component compiler provides support for special attributes, and an interpolation syntax which should contains
+The component compiler provides support for special attributes, and an interpolation syntax which can contains
 php expressions. There is no "language in the language", just php in html.
 
 ```html+php title="The Greeter component"
@@ -26,9 +24,8 @@ final readonly class Greeter
 </template>
 ```
 
-As you can see, these two parts belongs to the same file somewhat like Vue.js.
-Since it is legal to mix HTML and PHP in the same file, your favorite editor 
-will not complains about that.
+As you can see, these two parts belong to the same file somewhat like Vue.js. Since it is legal to mix HTML 
+and PHP in the same file, your favorite editor will not complain about it.
 
 !!! tip "phtml for the win !!"
     The idea of mixing HTML and PHP may sounds terrible. I mean, in most case, it is :upside_down:.
