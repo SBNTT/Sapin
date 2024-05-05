@@ -28,7 +28,9 @@ not matter given that Sapin will invoke the constructor with the named argument 
 </template>
 ```
 
-the `:uses` attribute may contains multiple imports. They must be coma separated. These following examples are valid:
+the `:uses` attribute may contains multiple imports. They must be coma separated. Trailing comas are allowed.
+
+These following examples are valid:
 ```html
 <template :uses="App\Component\ComponentA, App\Component\ComponentB">
    ...
@@ -38,9 +40,20 @@ the `:uses` attribute may contains multiple imports. They must be coma separated
 ```html
 <template :uses="
     App\Component\ComponentA, 
-    App\Component\ComponentB"
+    App\Component\ComponentB",
 >
    ...
+</template>
+```
+
+An import can be aliased following the same syntax as php:
+```html
+<template :uses="
+    App\Foo\Buzz as BuzzA, 
+    App\Bar\Buzz as BuzzB"
+>
+    <BuzzA />
+    <BuzzB />
 </template>
 ```
 

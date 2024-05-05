@@ -28,16 +28,18 @@ final readonly class TemplateNodeParser
         $templateNode = new TemplateNode();
 
         foreach ($uses as $use) {
-            if (!class_exists($use)) {
-                throw new Exception(sprintf('Could not found class "%s"', $use));
+            /** @var string[] $useParts */
+            $useParts = preg_split('/\s+as\s+/', $use);
+
+            $fqn = $useParts[0];
+            if (!class_exists($fqn)) {
+                throw new Exception(sprintf('Could not found class "%s"', $fqn));
             }
 
-            $className = substr(
-                strrchr($use, "\\") ?: throw new Exception(sprintf('Invalid use: "%s"', $use)),
-                1,
-            );
+            $alias = $useParts[1] ?? null;
+            $className = $alias ?? basename(str_replace('\\', '/', $fqn));
 
-            $templateNode->addUse($className, $use);
+            $templateNode->addUse($className, $fqn);
         }
 
         $templateNode->addChildren(
@@ -47,6 +49,9 @@ final readonly class TemplateNodeParser
         return $templateNode;
     }
 
+    /**
+     * @throws \Masterminds\HTML5\Exception
+     */
     private function parseHtmlTemplate(string $html): DOMNode
     {
         // Default options from HTML5 class
