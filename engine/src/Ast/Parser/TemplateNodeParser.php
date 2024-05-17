@@ -32,14 +32,12 @@ final readonly class TemplateNodeParser
             $useParts = preg_split('/\s+as\s+/', $use);
 
             $fqn = $useParts[0];
-            if (!class_exists($fqn)) {
-                throw new Exception(sprintf('Could not found class "%s"', $fqn));
-            }
-
             $alias = $useParts[1] ?? null;
-            $className = $alias ?? basename(str_replace('\\', '/', $fqn));
 
-            $templateNode->addUse($className, $fqn);
+            $templateNode->addUse(
+                $alias ?? basename(str_replace('\\', '/', $fqn)),
+                $fqn,
+            );
         }
 
         $templateNode->addChildren(
