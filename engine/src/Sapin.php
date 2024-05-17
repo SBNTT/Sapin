@@ -7,6 +7,7 @@ use Composer\Autoload\ClassLoader;
 use Exception;
 use Sapin\Ast\Compiler;
 use Sapin\Ast\Parser\ComponentNodeParser;
+use Stringable;
 use Throwable;
 
 abstract class Sapin
@@ -110,6 +111,11 @@ abstract class Sapin
         ob_start();
         self::render($initializer);
         return ob_get_clean() ?: throw new Exception('Failed to read output buffer contents');
+    }
+
+    public static function echo(string|int|float|bool|Stringable $value): void
+    {
+        echo $value;
     }
 
     /**

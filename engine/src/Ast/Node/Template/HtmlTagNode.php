@@ -26,7 +26,7 @@ class HtmlTagNode extends TemplateElementNode
             $compiler
                 ->write(' ' . $attributeName . '=' . '"')
                 ->writePhpOpeningTag()
-                ->write('echo ' . $attributeExpression . ';')
+                ->write('\Sapin\Sapin::echo(' . $attributeExpression . ');')
                 ->writePhpClosingTag()
                 ->write('"');
         }

@@ -17,7 +17,7 @@ final class TextNode extends TemplateElementNode
         $compiler->write(preg_replace_callback(
             '/{{(.*)}}/mU',
             function ($matches) {
-                return '<?php echo ' . trim($matches[1]) . ';?>';
+                return '<?php \Sapin\Sapin::echo(' . trim($matches[1]) . ');?>';
             },
             trim($this->content)
         ) ?? '');
