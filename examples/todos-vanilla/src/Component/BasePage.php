@@ -21,7 +21,7 @@ final readonly class BasePage
     </head>
 
     <body>
-    <main class="relative p-4 h-screen w-screen bg-gray-100 overflow-scroll bg-gradient-to-t from-[#c1dfc480] to-[#deecdd80]">
+    <main class="relative p-4 h-screen w-screen bg-gray-100 overflow-y-scroll bg-gradient-to-t from-[#c1dfc480] to-[#deecdd80]">
         <div class="m-auto max-w-[1200px]">
             <div class="flex items-center px-4">
                 <Logo/>
