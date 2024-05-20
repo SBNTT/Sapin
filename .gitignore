@@ -7,6 +7,6 @@ site
 
 **/var
 **/vendor
-**/.php-cs-fixer.cache
+**/*.cache
 
 engine/composer.lock
