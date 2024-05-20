@@ -6,7 +6,10 @@ use DOMAttr;
 use DOMNode;
 use Sapin\Ast\Node\Template\ComponentCallNode;
 use Sapin\Ast\Node\Template\FragmentNode;
+use Sapin\Ast\Node\Template\HtmlTagAttributeNode;
+use Sapin\Ast\Node\Template\HtmlTagDynamicAttributeNode;
 use Sapin\Ast\Node\Template\HtmlTagNode;
+use Sapin\Ast\Node\Template\HtmlTagStaticAttributeNode;
 use Sapin\Ast\Node\Template\SlotDeclarationNode;
 use Sapin\Ast\Node\Template\TemplateNode;
 use Sapin\Ast\Node\Template\TextNode;
@@ -33,32 +36,45 @@ final readonly class HtmlTagNodeParser
             return new SlotDeclarationNode($slotName);
         }
 
-        /** @var array<string, TextNode> $staticAttributes */
-        $staticAttributes = [];
+        return ($componentFqn = $templateNode->getUse($domNode->nodeName)) !== null
+            ? $this->parseComponentCallNode($domNode, $componentFqn)
+            : $this->parseHtmlTagNode($domNode);
+    }
 
-        /** @var array<string, string> $dynamicAttributes */
-        $dynamicAttributes = [];
+    private function parseHtmlTagNode(DOMNode $domNode): HtmlTagNode
+    {
+        $attributes = [];
 
         /** @var DOMAttr $attribute */
         foreach ($domNode->attributes ?? [] as $attribute) {
             if (str_starts_with($attribute->name, ':')) {
                 $attributeName = substr($attribute->name, 1);
                 if (!in_array($attributeName, self::RESERVED_DYNAMIC_ATTRIBUTES)) {
-                    $dynamicAttributes[$attributeName] = $attribute->value;
+                    $attributes[] = new HtmlTagDynamicAttributeNode($attributeName, $attribute->value);
                 }
             } else {
-                $staticAttributes[$attribute->name] = new TextNode($attribute->value);
+                $attributes[] = new HtmlTagStaticAttributeNode($attribute->name, new TextNode($attribute->value));
             }
         }
 
-        return ($componentFqn = $templateNode->getUse($domNode->nodeName)) !== null
-            ? new ComponentCallNode(
-                componentFqn: $componentFqn,
-                props: $dynamicAttributes,
-            ) : new HtmlTagNode(
-                name: strtolower($domNode->nodeName),
-                staticAttributes: $staticAttributes,
-                dynamicAttributes: $dynamicAttributes,
-            );
+        return new HtmlTagNode($domNode->nodeName, $attributes);
+    }
+
+    private function parseComponentCallNode(DOMNode $domNode, string $componentFqn): ComponentCallNode
+    {
+        /** @var array<string, string> $props */
+        $props = [];
+
+        /** @var DOMAttr $attribute */
+        foreach ($domNode->attributes ?? [] as $attribute) {
+            if (str_starts_with($attribute->name, ':')) {
+                $attributeName = substr($attribute->name, 1);
+                if (!in_array($attributeName, self::RESERVED_DYNAMIC_ATTRIBUTES)) {
+                    $props[$attributeName] = $attribute->value;
+                }
+            }
+        }
+
+        return new ComponentCallNode($componentFqn, $props);
     }
 }

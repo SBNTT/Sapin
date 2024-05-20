@@ -7,40 +7,28 @@ use Sapin\Ast\Compiler;
 class HtmlTagNode extends TemplateElementNode
 {
     /**
-     * @param array<string, TextNode> $staticAttributes
-     * @param array<string, string> $dynamicAttributes
+     * @param HtmlTagAttributeNode[] $attributes
      */
     public function __construct(
-        protected readonly string $name,
-        protected readonly array  $staticAttributes,
-        protected readonly array  $dynamicAttributes,
+        private readonly string $name,
+        private readonly array $attributes,
     ) {
         parent::__construct();
     }
 
     public function compile(Compiler $compiler): void
     {
-        $compiler->write('<' . $this->name);
+        $compiler->write('<' . strtolower($this->name));
 
-        foreach ($this->dynamicAttributes as $attributeName => $attributeExpression) {
+        foreach ($this->attributes as $attribute) {
             $compiler
-                ->write(' ' . $attributeName . '=' . '"')
-                ->writePhpOpeningTag()
-                ->write('\Sapin\Sapin::echo(' . $attributeExpression . ');')
-                ->writePhpClosingTag()
-                ->write('"');
-        }
-
-        foreach ($this->staticAttributes as $attributeName => $attributeValue) {
-            $compiler
-                ->write(' ' . $attributeName . '="')
-                ->compileNode($attributeValue)
-                ->write('"');
+                ->write(' ')
+                ->compileNode($attribute);
         }
 
         $compiler
             ->write('>')
             ->compileNodes($this->children)
-            ->write('</' . $this->name . '>');
+            ->write('</' . strtolower($this->name) . '>');
     }
 }
