@@ -11,7 +11,6 @@ final class ComponentCallNode extends TemplateElementNode
      */
     public function __construct(
         protected readonly string $componentFqn,
-        //protected readonly string $compiledComponentFqn,
         protected readonly array  $props,
     ) {
         parent::__construct();

@@ -121,7 +121,7 @@ abstract class Sapin
     /**
      * @throws Exception
      */
-    public static function getCacheDirectory(): string
+    private static function getCacheDirectory(): string
     {
         return self::$cacheDirectory ?? throw new Exception('Sapin::configure function must be called first');
     }

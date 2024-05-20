@@ -67,4 +67,17 @@ abstract class AbstractNode
     }
 
     abstract public function compile(Compiler $compiler): void;
+
+    /**
+     * @return AbstractNode[]
+     */
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
+    public function getParent(): ?AbstractNode
+    {
+        return $this->parent;
+    }
 }

@@ -5,10 +5,11 @@ namespace Sapin\Ast\Node\Template;
 use Exception;
 use Sapin\Ast\Compiler;
 use Sapin\Ast\Node\AbstractNode;
+use Sapin\SapinException;
 
 final class TemplateNode extends AbstractNode
 {
-    /** @var array<string, class-string> */
+    /** @var array<string, string> */
     private array $usesMap;
 
     public function __construct()
@@ -23,13 +24,14 @@ final class TemplateNode extends AbstractNode
     }
 
     /**
-     * @param class-string $componentFqn
      * @throws Exception
      */
     public function addUse(string $componentName, string $componentFqn): void
     {
-        array_key_exists($componentName, $this->usesMap)
-        && throw new Exception('Another component named "' . $componentName . '" already exists.');
+        array_key_exists($componentName, $this->usesMap) && throw new SapinException(sprintf(
+            'Another component named "%s" was previously imported. Consider using the aliasing syntax',
+            $componentName
+        ));
 
         $this->usesMap[$componentName] = $componentFqn;
     }
