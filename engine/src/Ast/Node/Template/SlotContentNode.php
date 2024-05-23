@@ -4,7 +4,7 @@ namespace Sapin\Ast\Node\Template;
 
 use Sapin\Ast\Compiler;
 
-class SlotContentNode extends TemplateElementNode
+final class SlotContentNode extends TemplateElementNode
 {
     public function __construct(
         public readonly string $name,

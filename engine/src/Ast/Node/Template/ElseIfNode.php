@@ -4,7 +4,7 @@ namespace Sapin\Ast\Node\Template;
 
 use Sapin\Ast\Compiler;
 
-class ElseIfNode extends TemplateElementNode
+final class ElseIfNode extends TemplateElementNode
 {
     public function __construct(
         private readonly string $expression,

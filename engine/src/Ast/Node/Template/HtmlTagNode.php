@@ -4,7 +4,7 @@ namespace Sapin\Ast\Node\Template;
 
 use Sapin\Ast\Compiler;
 
-class HtmlTagNode extends TemplateElementNode
+final class HtmlTagNode extends TemplateElementNode
 {
     /**
      * @param HtmlTagAttributeNode[] $attributes
