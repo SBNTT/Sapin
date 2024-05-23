@@ -32,7 +32,8 @@
             "php -d memory_limit=-1 vendor/bin/phpstan analyze"
         ],
         "format": [
-            "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src"
+            "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src",
+            "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix tests"
         ]
     }
 }
