@@ -9,12 +9,10 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class ForEachNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     #[Test]
     public function shouldCompileCorrectly(): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
         $node = new ForEachNode('expression');
 
         $compiler->expects(self::once())

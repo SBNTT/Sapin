@@ -10,12 +10,10 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class TemplateNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     #[Test]
     public function shouldCompileCorrectly(): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
         $node = new TemplateNode();
 
         $compiler->expects(self::once())
@@ -26,7 +24,7 @@ final class TemplateNodeTest extends TestCase
 
         self::assertSame('[children]', $compiler->getOut());
     }
-    
+
     // ---
 
     /**

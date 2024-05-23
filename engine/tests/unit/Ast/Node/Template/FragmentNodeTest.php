@@ -9,12 +9,10 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class FragmentNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     #[Test]
     public function shouldCompileCorrectly(): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
         $node = new FragmentNode();
 
         $compiler->expects(self::once())

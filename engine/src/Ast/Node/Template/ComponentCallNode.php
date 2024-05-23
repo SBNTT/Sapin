@@ -11,14 +11,11 @@ final class ComponentCallNode extends TemplateElementNode
      */
     public function __construct(
         protected readonly string $componentFqn,
-        protected readonly array  $props,
+        protected readonly array $props,
     ) {
         parent::__construct();
     }
 
-    /**
-     * @throws \Exception
-     */
     public function compile(Compiler $compiler): void
     {
         $compiledProps = [];
@@ -51,13 +48,13 @@ final class ComponentCallNode extends TemplateElementNode
         if (count($slots) > 0) {
             $compiler
                 ->write(',')
-                ->write('function (string $slot, callable $default) {');
+                ->write('function(string $slot,callable $default){');
 
             $if = false;
             foreach ($slots as $slotName => $slotValue) {
                 $compiler
                     ->write($if ? 'else if' : 'if')
-                    ->write("(\$slot === '" . $slotName . "'){")
+                    ->write("(\$slot==='" . $slotName . "'){")
                     ->writePhpClosingTag()
                     ->write($slotValue)
                     ->writePhpOpeningTag()

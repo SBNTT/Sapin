@@ -12,8 +12,6 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class HtmlTagNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     public static function compilationTestCasesProvider(): array
     {
         return [
@@ -40,7 +38,7 @@ final class HtmlTagNodeTest extends TestCase
     #[Test, DataProvider('compilationTestCasesProvider')]
     public function shouldCompileCorrectly(callable $nodeParamsBuilder, $expected): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
 
         [$name, $attributes] = $nodeParamsBuilder($this);
         $node = new HtmlTagNode($name, $attributes);
@@ -52,7 +50,7 @@ final class HtmlTagNodeTest extends TestCase
         $compileNodeMatcher = self::exactly(count($attributes));
         $compiler->expects($compileNodeMatcher)
             ->method('compileNode')
-            ->with(self::callback(function($param) use ($attributes, $compileNodeMatcher) {
+            ->with(self::callback(function ($param) use ($attributes, $compileNodeMatcher) {
                 self::assertSame($param, $attributes[$compileNodeMatcher->numberOfInvocations() - 1]);
                 return true;
             }));

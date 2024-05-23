@@ -11,8 +11,6 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class TextNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     public static function compilationTestCasesProvider(): array
     {
         return [
@@ -31,7 +29,7 @@ final class TextNodeTest extends TestCase
     #[Test, DataProvider('compilationTestCasesProvider')]
     public function shouldCompileCorrectly(string $value, string $expected): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
         $node = new TextNode($value);
 
         $node->compile($compiler);

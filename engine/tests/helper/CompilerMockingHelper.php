@@ -3,20 +3,21 @@
 namespace Sapin\Test\Helper;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Sapin\Ast\Compiler;
 
-trait CompilerMockingHelper
+abstract class CompilerMockingHelper
 {
     /**
      * @return MockObject&Compiler
      */
-    private function createMockCompiler(): MockObject
+    public static function createMockCompiler(TestCase $context): MockObject
     {
         /**
          * @var MockObject&Compiler $compiler
          * @noinspection PhpUnitInvalidMockingEntityInspection
          */
-        $compiler = $this->getMockBuilder(Compiler::class)
+        $compiler = $context->getMockBuilder(Compiler::class)
             ->onlyMethods(['compileNodes', 'compileNode'])
             ->getMock();
 
@@ -30,8 +31,8 @@ trait CompilerMockingHelper
         $compiler
             ->method('compileNode')
             ->willReturnCallback(function () use ($compiler) {
-               $compiler->write('[child]');
-               return $compiler;
+                $compiler->write('[child]');
+                return $compiler;
             });
 
         return $compiler;

@@ -9,12 +9,10 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class HtmlTagDynamicAttributeNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     #[Test]
     public function shouldCompileCorrectly(): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
         $node = new HtmlTagDynamicAttributeNode('name', 'expression');
 
         $node->compile($compiler);

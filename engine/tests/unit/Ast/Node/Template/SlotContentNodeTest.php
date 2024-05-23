@@ -10,12 +10,10 @@ use Sapin\Test\Helper\CompilerMockingHelper;
 
 final class SlotContentNodeTest extends TestCase
 {
-    use CompilerMockingHelper;
-
     #[Test]
     public function shouldCompileCorrectly(): void
     {
-        $compiler = $this->createMockCompiler();
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
         $childNode = $this->createMock(TemplateElementNode::class);
         $node = new SlotContentNode('slotName', $childNode);
 
