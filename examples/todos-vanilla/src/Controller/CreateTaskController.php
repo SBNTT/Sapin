@@ -15,7 +15,7 @@ $task = $taskRepository->insertOne($title, $description, TaskState::PENDING);
 
 if ($task === null) {
     http_response_code(500);
-    Sapin::compileAndRender(ErrorPage::class, fn() => new ErrorPage(
+    Sapin::render(new ErrorPage(
         message: 'Error 500: Internal server error'
     ));
     exit();

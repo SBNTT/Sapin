@@ -21,13 +21,9 @@ final class ComponentCallNode extends TemplateElementNode
      */
     public function compile(Compiler $compiler): void
     {
-        $compiler
-            ->writePhpOpeningTag()
-            ->write('\Sapin\Sapin::compile(' . "'" . $this->componentFqn . "'" . ');')
-            ->write('(new \\' . $this->componentFqn . '(');
-
+        $compiledProps = [];
         foreach ($this->props as $attributeName => $attributeValue) {
-            $compiler->write(' ' . $attributeName . ':' . $attributeValue . ',');
+            $compiledProps[] = $attributeName . ':' . $attributeValue;
         }
 
         /**
@@ -35,7 +31,6 @@ final class ComponentCallNode extends TemplateElementNode
          * @var array<string, string> $slots
          */
         $slots = [];
-
         foreach ($this->children as $childNode) {
             if (!($childNode instanceof SlotContentNode)) {
                 continue;
@@ -46,10 +41,17 @@ final class ComponentCallNode extends TemplateElementNode
             $slots[$childNode->name] = $slotCompiler->getOut();
         }
 
-        $compiler->write('))->render(');
+        $compiler
+            ->writePhpOpeningTag()
+            ->write('\Sapin\Sapin::render(')
+            ->write('new \\' . $this->componentFqn . '(')
+            ->write(implode(',', $compiledProps))
+            ->write(')');
 
         if (count($slots) > 0) {
-            $compiler->write('function (string $slot, callable $default) {');
+            $compiler
+                ->write(',')
+                ->write('function (string $slot, callable $default) {');
 
             $if = false;
             foreach ($slots as $slotName => $slotValue) {

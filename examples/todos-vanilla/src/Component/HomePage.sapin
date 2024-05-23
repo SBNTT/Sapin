@@ -6,6 +6,8 @@ use App\Model\Task;
 
 final readonly class HomePage
 {
+    public const string FOO = 'BAR';
+
     /** @param Task[] $tasks */
     public function __construct(
         public array $tasks,

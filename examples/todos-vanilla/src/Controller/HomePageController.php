@@ -9,4 +9,4 @@ use Sapin\Sapin;
 $taskRepository = new TaskRepository();
 $tasks = $taskRepository->getAllTasks();
 
-Sapin::compileAndRender(HomePage::class, fn() => new HomePage($tasks));
+Sapin::render(new HomePage($tasks));

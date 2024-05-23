@@ -2,13 +2,12 @@
 
 namespace Sapin;
 
-use Closure;
 use Composer\Autoload\ClassLoader;
 use Exception;
+use ReflectionObject;
 use Sapin\Ast\Compiler;
 use Sapin\Ast\Parser\ComponentNodeParser;
 use Stringable;
-use Throwable;
 
 abstract class Sapin
 {
@@ -17,55 +16,58 @@ abstract class Sapin
 
     public static function configure(
         string $cacheDirectory,
-        bool $disableIncrementalCompilation = false
+        bool   $disableIncrementalCompilation = false
     ): void {
         self::$cacheDirectory = $cacheDirectory;
         self::$disableIncrementalCompilation = $disableIncrementalCompilation;
-
-        spl_autoload_register(static function ($class) {
-            try {
-                if (file_exists(($path = self::resolveCompiledComponentFilePath($class)))) {
-                    require $path;
+        spl_autoload_register(
+            /** @throws Exception */
+            static function ($class) {
+                if (($componentFilePath = self::resolveComponentClassFilePath($class)) === null) {
+                    return;
                 }
-            } catch (Throwable) {
-            }
-        }, prepend: true);
+
+                $compiledComponentFilePath = self::resolveCompiledComponentFilePath($class);
+                self::compile($componentFilePath, $compiledComponentFilePath);
+                require_once $compiledComponentFilePath;
+            },
+        );
     }
 
     /**
-     * @template T of object
-     * @param class-string<T> $componentFqn
-     * @param Closure(): T $initializer
      * @throws Exception
      */
-    public static function compileAndRender(string $componentFqn, Closure $initializer): void
+    public static function render(object $component, ?callable $slotRenderer = null): void
     {
-        self::compile($componentFqn);
-        self::render($initializer);
+        if (!($component instanceof ComponentInterface)) {
+            throw new Exception(sprintf('This is not a valid component to render: "%s"', get_class($component)));
+        }
+
+        $component->render($slotRenderer);
     }
 
     /**
-     * @template T of object
-     * @param class-string<T> $componentFqn
-     * @param Closure(): T $initializer
      * @throws Exception
      */
-    public static function compileAndRenderToString(string $componentFqn, Closure $initializer): string
+    public static function renderToString(object $component): string
     {
-        self::compile($componentFqn);
-        return self::renderToString($initializer);
+        ob_start();
+        self::render($component);
+        return ob_get_clean() ?: throw new Exception('Failed to read output buffer contents');
+    }
+
+    public static function echo(string|int|float|bool|Stringable $value): void
+    {
+        echo $value;
     }
 
     /**
-     * @template T of object
-     * @param class-string<T> $componentFqn
      * @throws Exception
      */
-    public static function compile(string $componentFqn): void
-    {
-        $componentFilePath = self::resolveClassFilePath($componentFqn);
-        $compiledComponentFilePath = self::resolveCompiledComponentFilePath($componentFqn);
-
+    private static function compile(
+        string $componentFilePath,
+        string $compiledComponentFilePath,
+    ): void {
         if (!self::$disableIncrementalCompilation
             && file_exists($compiledComponentFilePath)
             && filemtime($compiledComponentFilePath) > filemtime($componentFilePath)
@@ -86,39 +88,6 @@ abstract class Sapin
     }
 
     /**
-     * @template T of object
-     * @param Closure(): T $initializer
-     * @throws Exception
-     */
-    public static function render(Closure $initializer): void
-    {
-        $component = $initializer();
-
-        if (!($component instanceof ComponentInterface)) {
-            throw new Exception(sprintf('This is not a valid component to render: "%s"', get_class($component)));
-        }
-
-        $component->render();
-    }
-
-    /**
-     * @template T of object
-     * @param Closure(): T $initializer
-     * @throws Exception
-     */
-    public static function renderToString(Closure $initializer): string
-    {
-        ob_start();
-        self::render($initializer);
-        return ob_get_clean() ?: throw new Exception('Failed to read output buffer contents');
-    }
-
-    public static function echo(string|int|float|bool|Stringable $value): void
-    {
-        echo $value;
-    }
-
-    /**
      * @throws Exception
      */
     private static function getCacheDirectory(): string
@@ -126,19 +95,22 @@ abstract class Sapin
         return self::$cacheDirectory ?? throw new Exception('Sapin::configure function must be called first');
     }
 
-    /**
-     * @param class-string $class
-     * @throws Exception
-     */
-    private static function resolveClassFilePath(string $class): string
+    private static function resolveComponentClassFilePath(string $class): ?string
     {
         foreach (ClassLoader::getRegisteredLoaders() as $autoloader) {
-            if (is_string($path = $autoloader->findFile($class))) {
-                return $path;
+            try {
+                $filePath = (new ReflectionObject($autoloader))
+                    ->getMethod('findFileWithExtension')
+                    ->invoke($autoloader, $class, '.sapin');
+
+                if (is_string($filePath)) {
+                    return $filePath;
+                }
+            } catch (\ReflectionException $e) {
             }
         }
 
-        throw new Exception(sprintf('class "%s" file cannot be resolved', $class));
+        return null;
     }
 
     /**
