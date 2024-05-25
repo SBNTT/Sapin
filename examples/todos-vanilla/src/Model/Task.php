@@ -9,8 +9,7 @@ final class Task
         public readonly string $title,
         public readonly string $description,
         public readonly TaskState $state,
-    )
-    {
+    ) {
     }
 
     public function isPending(): bool

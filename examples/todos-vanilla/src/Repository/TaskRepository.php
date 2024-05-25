@@ -42,8 +42,7 @@ final class TaskRepository
         string $title,
         string $description,
         TaskState $state,
-    ): ?Task
-    {
+    ): ?Task {
         $statement = $this->database->prepare(
             "INSERT INTO task (title, description, state) VALUES (:title, :description, :state)",
         );
