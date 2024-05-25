@@ -2,7 +2,7 @@
 
 namespace App\Component;
 
-final readonly class BasePage
+final class BasePage
 {
 } ?>
 

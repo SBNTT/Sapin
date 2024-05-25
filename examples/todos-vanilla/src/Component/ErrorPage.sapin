@@ -2,7 +2,7 @@
 
 namespace App\Component;
 
-final readonly class ErrorPage
+final class ErrorPage
 {
     public function __construct(
         public string $message,

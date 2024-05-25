@@ -5,7 +5,7 @@ namespace App\Component;
 use App\Model\Task;
 use App\Model\TaskState;
 
-final readonly class TaskListItem
+final class TaskListItem
 {
     public int $inProgressState;
     public int $doneState;

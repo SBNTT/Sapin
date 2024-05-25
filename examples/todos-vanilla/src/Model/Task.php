@@ -2,13 +2,13 @@
 
 namespace App\Model;
 
-final readonly class Task
+final class Task
 {
     public function __construct(
-        public int $id,
-        public string $title,
-        public string $description,
-        public TaskState $state,
+        public readonly int $id,
+        public readonly string $title,
+        public readonly string $description,
+        public readonly TaskState $state,
     )
     {
     }

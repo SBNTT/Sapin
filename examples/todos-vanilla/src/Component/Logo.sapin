@@ -2,7 +2,7 @@
 
 namespace App\Component;
 
-final readonly class Logo
+final class Logo
 {
 
 } ?>

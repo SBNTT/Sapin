@@ -13,7 +13,7 @@ use Sapin\Ast\Node\Template\TemplateElementNode;
 use Sapin\Ast\Node\Template\TemplateNode;
 use Sapin\Ast\Node\Template\TextNode;
 
-final readonly class TemplateElementNodeParser
+final class TemplateElementNodeParser
 {
     /**
      * @throws \Exception

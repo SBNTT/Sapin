@@ -9,7 +9,7 @@ use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
 use Sapin\Ast\Node\Template\TemplateNode;
 
-final readonly class TemplateNodeParser
+final class TemplateNodeParser
 {
     /**
      * @throws Exception

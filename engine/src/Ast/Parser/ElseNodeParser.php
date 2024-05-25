@@ -5,7 +5,7 @@ namespace Sapin\Ast\Parser;
 use Sapin\Ast\Node\AbstractNode;
 use Sapin\Ast\Node\Template\ElseNode;
 
-final readonly class ElseNodeParser
+final class ElseNodeParser
 {
     /**
      * @throws \Exception

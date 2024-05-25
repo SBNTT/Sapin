@@ -4,6 +4,7 @@ namespace Sapin;
 
 use Composer\Autoload\ClassLoader;
 use Exception;
+use ReflectionException;
 use ReflectionObject;
 use Sapin\Ast\Compiler;
 use Sapin\Ast\Parser\ComponentNodeParser;
@@ -106,7 +107,7 @@ abstract class Sapin
                 if (is_string($filePath)) {
                     return $filePath;
                 }
-            } catch (\ReflectionException $e) {
+            } catch (ReflectionException $e) {
             }
         }
 

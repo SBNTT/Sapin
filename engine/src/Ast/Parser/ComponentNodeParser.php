@@ -7,7 +7,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Sapin\Ast\Node\ComponentNode;
 
-final readonly class ComponentNodeParser
+final class ComponentNodeParser
 {
     /**
      * @throws Exception

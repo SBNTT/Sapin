@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dedf93a7dcef59d05ff96cdfbab7177e",
+    "content-hash": "a3ed3889ee0eacc8059ce7f18e4e737a",
     "packages": [
         {
             "name": "masterminds/html5",
@@ -75,16 +75,16 @@
         },
         {
             "name": "nette/php-generator",
-            "version": "v4.1.4",
+            "version": "v4.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/php-generator.git",
-                "reference": "b135071d8da108445e4df2fc6a75522b23c0237d"
+                "reference": "690b00d81d42d5633e4457c43ef9754573b6f9d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/php-generator/zipball/b135071d8da108445e4df2fc6a75522b23c0237d",
-                "reference": "b135071d8da108445e4df2fc6a75522b23c0237d",
+                "url": "https://api.github.com/repos/nette/php-generator/zipball/690b00d81d42d5633e4457c43ef9754573b6f9d6",
+                "reference": "690b00d81d42d5633e4457c43ef9754573b6f9d6",
                 "shasum": ""
             },
             "require": {
@@ -138,9 +138,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/php-generator/issues",
-                "source": "https://github.com/nette/php-generator/tree/v4.1.4"
+                "source": "https://github.com/nette/php-generator/tree/v4.1.5"
             },
-            "time": "2024-03-07T23:06:26+00:00"
+            "time": "2024-05-12T17:31:02+00:00"
         },
         {
             "name": "nette/utils",
@@ -292,7 +292,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../engine",
-                "reference": "16cd097e628ae8d610cba1040cfe0b194ec6fe50"
+                "reference": "679cca60d6ec81d0db5f71cf14f9b4afcb566a63"
             },
             "require": {
                 "ext-dom": "*",
@@ -300,11 +300,13 @@
                 "masterminds/html5": "^2.9",
                 "nette/php-generator": "^4.1",
                 "nikic/php-parser": "^5.0",
-                "php": ">=8.3"
+                "php": ">=8.1"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.54",
-                "phpstan/phpstan": "^1.10"
+                "dg/bypass-finals": "^1.7",
+                "friendsofphp/php-cs-fixer": "^3.57",
+                "phpstan/phpstan": "^1.11",
+                "phpunit/phpunit": "^10.5"
             },
             "type": "library",
             "autoload": {
@@ -312,12 +314,20 @@
                     "Sapin\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Sapin\\Test\\Helper\\": "tests/helper/",
+                    "Sapin\\Test\\Unit\\": "tests/unit/",
+                    "Sapin\\Test\\Integration\\": "tests/integration/"
+                }
+            },
             "scripts": {
                 "lint": [
                     "php -d memory_limit=-1 vendor/bin/phpstan analyze"
                 ],
                 "format": [
-                    "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src"
+                    "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src",
+                    "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix tests"
                 ]
             },
             "transport-options": {
@@ -332,6 +342,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
+        "php": ">=8.1",
         "ext-sqlite3": "*"
     },
     "platform-dev": [],

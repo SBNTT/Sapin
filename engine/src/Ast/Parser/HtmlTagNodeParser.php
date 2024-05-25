@@ -14,9 +14,9 @@ use Sapin\Ast\Node\Template\SlotDeclarationNode;
 use Sapin\Ast\Node\Template\TemplateNode;
 use Sapin\Ast\Node\Template\TextNode;
 
-final readonly class HtmlTagNodeParser
+final class HtmlTagNodeParser
 {
-    private const array RESERVED_DYNAMIC_ATTRIBUTES = [
+    private const RESERVED_DYNAMIC_ATTRIBUTES = [
         'foreach', 'for', 'if', 'else-if', 'else', 'slot'
     ];
 

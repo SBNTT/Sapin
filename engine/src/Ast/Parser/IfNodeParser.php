@@ -5,7 +5,7 @@ namespace Sapin\Ast\Parser;
 use Sapin\Ast\Node\AbstractNode;
 use Sapin\Ast\Node\Template\IfNode;
 
-final readonly class IfNodeParser
+final class IfNodeParser
 {
     /**
      * @throws \Exception

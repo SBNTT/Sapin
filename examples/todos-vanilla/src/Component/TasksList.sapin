@@ -5,7 +5,7 @@ namespace App\Component;
 use App\Model\Task;
 use App\Model\TaskState;
 
-final readonly class TasksList
+final class TasksList
 {
     /** @param Task[] $tasks */
     public function __construct(

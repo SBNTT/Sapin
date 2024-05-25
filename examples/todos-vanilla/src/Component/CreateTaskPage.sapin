@@ -2,7 +2,7 @@
 
 namespace App\Component;
 
-final readonly class CreateTaskPage
+final class CreateTaskPage
 {
 } ?>
 
