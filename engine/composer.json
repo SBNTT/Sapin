@@ -3,8 +3,6 @@
     "version": "0.1.0",
     "require": {
         "php": ">=8.1",
-        "ext-dom": "*",
-        "ext-libxml": "*",
         "nette/php-generator": "^4.1",
         "nikic/php-parser": "^5.0",
         "masterminds/html5": "^2.9"
@@ -34,6 +32,9 @@
         "format": [
             "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src",
             "php -d memory_limit=-1 vendor/bin/php-cs-fixer fix tests"
+        ],
+        "test": [
+            "./vendor/bin/phpunit tests"
         ]
     }
 }
