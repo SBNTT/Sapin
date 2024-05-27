@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Component;
+
+final class Greeter
+{
+    public function __construct(
+        public string $name,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <span>Hello, {{ $this->name }} !</span>
+</template>

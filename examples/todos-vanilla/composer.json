@@ -1,5 +1,5 @@
 {
-    "name": "sapin/examples_todos_vanilla",
+    "name": "sapin/examples-todos-vanilla",
     "repositories": [
         {
             "type": "path",
