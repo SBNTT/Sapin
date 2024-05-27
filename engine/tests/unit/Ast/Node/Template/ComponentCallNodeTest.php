@@ -1,16 +1,16 @@
 <?php
 
-namespace Sapin\Test\Unit\Ast\Node\Template;
+namespace Sapin\Engine\Test\Unit\Ast\Node\Template;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Sapin\Ast\Compiler;
-use Sapin\Ast\Node\Template\ComponentCallNode;
-use Sapin\Ast\Node\Template\SlotContentNode;
-use Sapin\Ast\Node\Template\TemplateElementNode;
-use Sapin\Test\Helper\CompilerMockingHelper;
+use Sapin\Engine\Ast\Compiler;
+use Sapin\Engine\Ast\Node\Template\ComponentCallNode;
+use Sapin\Engine\Ast\Node\Template\SlotContentNode;
+use Sapin\Engine\Ast\Node\Template\TemplateElementNode;
+use Sapin\Engine\Test\Helper\CompilerMockingHelper;
 
 final class ComponentCallNodeTest extends TestCase
 {
@@ -19,17 +19,17 @@ final class ComponentCallNodeTest extends TestCase
         return [
             [
                 fn (TestCase $context) => ['MyComponent', [], []],
-                '<?php \Sapin\Sapin::render(new \MyComponent());?>',
+                '<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent());?>',
             ],
 
             [
                 fn (TestCase $context) => ['MyComponent', ['foo' => "'bar'"], []],
-                "<?php \Sapin\Sapin::render(new \MyComponent(foo:'bar'));?>",
+                "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar'));?>",
             ],
 
             [
                 fn (TestCase $context) => ['MyComponent', ['foo' => "'bar'", 'buzz' => 'true'], []],
-                "<?php \Sapin\Sapin::render(new \MyComponent(foo:'bar',buzz:true));?>",
+                "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar',buzz:true));?>",
             ],
 
             [
@@ -39,7 +39,7 @@ final class ComponentCallNodeTest extends TestCase
                     $context->createMock(TemplateElementNode::class),
                 ]],
                 implode('', [
-                    "<?php \Sapin\Sapin::render(new \MyComponent(),function(string \$slot,callable \$default){",
+                    "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),function(string \$slot,callable \$default){",
                     "if(\$slot==='slot1'){?>[slot1]<?php }",
                     "else{\$default();}",
                     "});?>",
@@ -54,7 +54,7 @@ final class ComponentCallNodeTest extends TestCase
                     self::createMockSlotContentNode($context, 'slot3'),
                 ]],
                 implode('', [
-                    "<?php \Sapin\Sapin::render(new \MyComponent(),function(string \$slot,callable \$default){",
+                    "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),function(string \$slot,callable \$default){",
                     "if(\$slot==='slot1'){?>[slot1]<?php }",
                     "else if(\$slot==='slot2'){?>[slot2]<?php }",
                     "else if(\$slot==='slot3'){?>[slot3]<?php }",
@@ -70,7 +70,7 @@ final class ComponentCallNodeTest extends TestCase
                     self::createMockSlotContentNode($context, 'slot3'),
                 ]],
                 implode('', [
-                    "<?php \Sapin\Sapin::render(new \MyComponent(foo:'bar',buzz:true),",
+                    "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar',buzz:true),",
                     "function(string \$slot,callable \$default){",
                     "if(\$slot==='slot1'){?>[slot1]<?php }",
                     "else if(\$slot==='slot2'){?>[slot2]<?php }",
@@ -80,20 +80,6 @@ final class ComponentCallNodeTest extends TestCase
                 ]),
             ],
         ];
-    }
-
-    #[Test, DataProvider('compilationTestCasesProvider')]
-    public function shouldCompileCorrectly(callable $nodeParamsBuilder, string $expected): void
-    {
-        $compiler = CompilerMockingHelper::createMockCompiler($this);
-
-        [$componentFqn, $props, $children] = $nodeParamsBuilder($this);
-        $node = new ComponentCallNode($componentFqn, $props);
-        $node->addChildren($children);
-
-        $node->compile($compiler);
-
-        self::assertSame($expected, $compiler->getOut());
     }
 
     /**
@@ -115,5 +101,19 @@ final class ComponentCallNodeTest extends TestCase
             });
 
         return $mockNode;
+    }
+
+    #[Test, DataProvider('compilationTestCasesProvider')]
+    public function shouldCompileCorrectly(callable $nodeParamsBuilder, string $expected): void
+    {
+        $compiler = CompilerMockingHelper::createMockCompiler($this);
+
+        [$componentFqn, $props, $children] = $nodeParamsBuilder($this);
+        $node = new ComponentCallNode($componentFqn, $props);
+        $node->addChildren($children);
+
+        $node->compile($compiler);
+
+        self::assertSame($expected, $compiler->getOut());
     }
 }

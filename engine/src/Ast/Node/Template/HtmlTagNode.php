@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class HtmlTagNode extends TemplateElementNode
 {
@@ -11,7 +11,7 @@ final class HtmlTagNode extends TemplateElementNode
      */
     public function __construct(
         private readonly string $name,
-        private readonly array $attributes,
+        private readonly array  $attributes,
     ) {
         parent::__construct();
     }

@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Component\ErrorPage;
 use App\Model\TaskState;
 use App\Repository\TaskRepository;
-use Sapin\Sapin;
+use Sapin\Engine\Sapin;
 
 $title = htmlspecialchars($_POST['title'] ?? '');
 $description = htmlspecialchars($_POST['description'] ?? '');

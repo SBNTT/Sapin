@@ -1,11 +1,11 @@
 <?php
 
-namespace Sapin\Ast\Parser;
+namespace Sapin\Engine\Ast\Parser;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
-use Sapin\Ast\Node\ComponentNode;
-use Sapin\SapinException;
+use Sapin\Engine\Ast\Node\ComponentNode;
+use Sapin\Engine\SapinException;
 
 final class ComponentNodeParser
 {

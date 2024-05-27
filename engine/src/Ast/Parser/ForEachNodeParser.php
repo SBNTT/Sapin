@@ -1,9 +1,9 @@
 <?php
 
-namespace Sapin\Ast\Parser;
+namespace Sapin\Engine\Ast\Parser;
 
-use Sapin\Ast\Node\AbstractNode;
-use Sapin\Ast\Node\Template\ForEachNode;
+use Sapin\Engine\Ast\Node\AbstractNode;
+use Sapin\Engine\Ast\Node\Template\ForEachNode;
 
 final class ForEachNodeParser
 {

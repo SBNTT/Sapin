@@ -1,14 +1,13 @@
 <?php
 
-namespace Sapin\Test\Unit\Ast\Node\Template;
+namespace Sapin\Engine\Test\Unit\Ast\Node\Template;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Sapin\Ast\Node\Template\HtmlTagAttributeNode;
-use Sapin\Ast\Node\Template\HtmlTagNode;
-use Sapin\Ast\Node\Template\TextNode;
-use Sapin\Test\Helper\CompilerMockingHelper;
+use Sapin\Engine\Ast\Node\Template\HtmlTagAttributeNode;
+use Sapin\Engine\Ast\Node\Template\HtmlTagNode;
+use Sapin\Engine\Test\Helper\CompilerMockingHelper;
 
 final class HtmlTagNodeTest extends TestCase
 {

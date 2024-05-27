@@ -1,13 +1,13 @@
 <?php
 
-namespace Sapin\Ast\Parser;
+namespace Sapin\Engine\Ast\Parser;
 
 use DOMNode;
 use Masterminds\HTML5\Parser\DOMTreeBuilder;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
-use Sapin\Ast\Node\Template\TemplateNode;
-use Sapin\SapinException;
+use Sapin\Engine\Ast\Node\Template\TemplateNode;
+use Sapin\Engine\SapinException;
 
 final class TemplateNodeParser
 {

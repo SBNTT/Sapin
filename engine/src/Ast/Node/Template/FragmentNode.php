@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class FragmentNode extends TemplateElementNode
 {

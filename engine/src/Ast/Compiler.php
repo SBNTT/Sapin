@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast;
+namespace Sapin\Engine\Ast;
 
-use Sapin\Ast\Node\AbstractNode;
+use Sapin\Engine\Ast\Node\AbstractNode;
 
 final class Compiler
 {

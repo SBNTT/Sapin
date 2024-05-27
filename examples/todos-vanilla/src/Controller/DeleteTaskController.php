@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Component\ErrorPage;
 use App\Repository\TaskRepository;
-use Sapin\Sapin;
+use Sapin\Engine\Sapin;
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]);
 

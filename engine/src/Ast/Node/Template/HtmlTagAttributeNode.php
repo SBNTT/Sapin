@@ -1,6 +1,6 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
 abstract class HtmlTagAttributeNode extends TemplateElementNode
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class HtmlTagDynamicAttributeNode extends HtmlTagAttributeNode
 {
@@ -19,7 +19,7 @@ final class HtmlTagDynamicAttributeNode extends HtmlTagAttributeNode
             ->write($this->name)
             ->write('="')
             ->writePhpOpeningTag()
-            ->write('\Sapin\Sapin::echo(' . $this->expression . ');')
+            ->write('\\Sapin\\Engine\\Sapin::echo(' . $this->expression . ');')
             ->writePhpClosingTag()
             ->write('"');
     }

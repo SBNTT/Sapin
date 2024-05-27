@@ -1,9 +1,9 @@
 <?php
 
-namespace Sapin\Ast\Parser;
+namespace Sapin\Engine\Ast\Parser;
 
-use Sapin\Ast\Node\AbstractNode;
-use Sapin\Ast\Node\Template\ElseNode;
+use Sapin\Engine\Ast\Node\AbstractNode;
+use Sapin\Engine\Ast\Node\Template\ElseNode;
 
 final class ElseNodeParser
 {

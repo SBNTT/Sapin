@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Component\ErrorPage;
-use Sapin\Sapin;
+use Sapin\Engine\Sapin;
 
 http_response_code(404);
 Sapin::render(new ErrorPage(

@@ -1,12 +1,12 @@
 <?php
 
-namespace Sapin;
+namespace Sapin\Engine;
 
 use Composer\Autoload\ClassLoader;
 use ReflectionException;
 use ReflectionObject;
-use Sapin\Ast\Compiler;
-use Sapin\Ast\Parser\ComponentNodeParser;
+use Sapin\Engine\Ast\Compiler;
+use Sapin\Engine\Ast\Parser\ComponentNodeParser;
 use Stringable;
 use Throwable;
 
@@ -17,7 +17,7 @@ abstract class Sapin
 
     public static function configure(
         string $cacheDirectory,
-        bool $disableIncrementalCompilation = false
+        bool   $disableIncrementalCompilation = false
     ): void {
         self::$cacheDirectory = $cacheDirectory;
         self::$disableIncrementalCompilation = $disableIncrementalCompilation;
@@ -35,34 +35,43 @@ abstract class Sapin
         );
     }
 
-    /**
-     * @throws SapinException
-     */
-    public static function render(object $component, ?callable $slotRenderer = null): void
+    private static function resolveComponentClassFilePath(string $class): ?string
     {
-        if (!($component instanceof ComponentInterface)) {
-            throw new SapinException(sprintf(
-                'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
-                get_class($component),
-            ));
+        foreach (ClassLoader::getRegisteredLoaders() as $autoloader) {
+            try {
+                $filePath = (new ReflectionObject($autoloader))
+                    ->getMethod('findFileWithExtension')
+                    ->invoke($autoloader, $class, '.sapin');
+
+                if (is_string($filePath)) {
+                    return $filePath;
+                }
+            } catch (ReflectionException) {
+            }
         }
 
-        $component->render($slotRenderer);
+        return null;
     }
 
     /**
      * @throws SapinException
      */
-    public static function renderToString(object $component): string
+    private static function resolveCompiledComponentFilePath(string $componentFqn): string
     {
-        ob_start();
-        self::render($component);
-        return ob_get_clean() ?: throw new SapinException('Failed to read output buffer contents');
+        return implode('/', [
+            rtrim(self::getCacheDirectory(), '/'),
+            md5($componentFqn) . '.php'
+        ]);
     }
 
-    public static function echo(string|int|float|bool|Stringable $value): void
+    /**
+     * @throws SapinException
+     */
+    private static function getCacheDirectory(): string
     {
-        echo $value;
+        return self::$cacheDirectory ?? throw new SapinException(
+            'Failed to get cache directory. Sapin::configure function must be called first',
+        );
     }
 
     /**
@@ -103,39 +112,30 @@ abstract class Sapin
     /**
      * @throws SapinException
      */
-    private static function getCacheDirectory(): string
+    public static function renderToString(object $component): string
     {
-        return self::$cacheDirectory ?? throw new SapinException(
-            'Failed to get cache directory. Sapin::configure function must be called first',
-        );
-    }
-
-    private static function resolveComponentClassFilePath(string $class): ?string
-    {
-        foreach (ClassLoader::getRegisteredLoaders() as $autoloader) {
-            try {
-                $filePath = (new ReflectionObject($autoloader))
-                    ->getMethod('findFileWithExtension')
-                    ->invoke($autoloader, $class, '.sapin');
-
-                if (is_string($filePath)) {
-                    return $filePath;
-                }
-            } catch (ReflectionException) {
-            }
-        }
-
-        return null;
+        ob_start();
+        self::render($component);
+        return ob_get_clean() ?: throw new SapinException('Failed to read output buffer contents');
     }
 
     /**
      * @throws SapinException
      */
-    private static function resolveCompiledComponentFilePath(string $componentFqn): string
+    public static function render(object $component, ?callable $slotRenderer = null): void
     {
-        return implode('/', [
-            rtrim(self::getCacheDirectory(), '/'),
-            md5($componentFqn) . '.php'
-        ]);
+        if (!($component instanceof ComponentInterface)) {
+            throw new SapinException(sprintf(
+                'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
+                get_class($component),
+            ));
+        }
+
+        $component->render($slotRenderer);
+    }
+
+    public static function echo(string|int|float|bool|Stringable $value): void
+    {
+        echo $value;
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Sapin\Test\Helper;
+namespace Sapin\Engine\Test\Helper;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 abstract class CompilerMockingHelper
 {

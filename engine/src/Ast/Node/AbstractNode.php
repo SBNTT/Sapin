@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast\Node;
+namespace Sapin\Engine\Ast\Node;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 abstract class AbstractNode
 {

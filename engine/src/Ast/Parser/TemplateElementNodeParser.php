@@ -1,18 +1,18 @@
 <?php
 
-namespace Sapin\Ast\Parser;
+namespace Sapin\Engine\Ast\Parser;
 
 use DOMAttr;
 use DOMComment;
 use DOMElement;
 use DOMNode;
 use DOMText;
-use Sapin\Ast\Node\AbstractNode;
-use Sapin\Ast\Node\Template\SlotContentNode;
-use Sapin\Ast\Node\Template\TemplateElementNode;
-use Sapin\Ast\Node\Template\TemplateNode;
-use Sapin\Ast\Node\Template\TextNode;
-use Sapin\SapinException;
+use Sapin\Engine\Ast\Node\AbstractNode;
+use Sapin\Engine\Ast\Node\Template\SlotContentNode;
+use Sapin\Engine\Ast\Node\Template\TemplateElementNode;
+use Sapin\Engine\Ast\Node\Template\TemplateNode;
+use Sapin\Engine\Ast\Node\Template\TextNode;
+use Sapin\Engine\SapinException;
 
 final class TemplateElementNodeParser
 {

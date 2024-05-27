@@ -1,13 +1,13 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class HtmlTagStaticAttributeNode extends HtmlTagAttributeNode
 {
     public function __construct(
-        private readonly string $name,
+        private readonly string   $name,
         private readonly TextNode $value,
     ) {
         parent::__construct();

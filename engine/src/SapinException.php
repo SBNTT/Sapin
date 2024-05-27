@@ -1,6 +1,6 @@
 <?php
 
-namespace Sapin;
+namespace Sapin\Engine;
 
 use Exception;
 

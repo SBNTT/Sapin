@@ -1,11 +1,11 @@
 <?php
 
-namespace Sapin\Test\Unit\Ast\Node\Template;
+namespace Sapin\Engine\Test\Unit\Ast\Node\Template;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Sapin\Ast\Node\Template\ForEachNode;
-use Sapin\Test\Helper\CompilerMockingHelper;
+use Sapin\Engine\Ast\Node\Template\ForEachNode;
+use Sapin\Engine\Test\Helper\CompilerMockingHelper;
 
 final class ForEachNodeTest extends TestCase
 {

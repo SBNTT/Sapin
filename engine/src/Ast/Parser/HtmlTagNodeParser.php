@@ -1,18 +1,18 @@
 <?php
 
-namespace Sapin\Ast\Parser;
+namespace Sapin\Engine\Ast\Parser;
 
 use DOMAttr;
 use DOMNode;
-use Sapin\Ast\Node\Template\ComponentCallNode;
-use Sapin\Ast\Node\Template\FragmentNode;
-use Sapin\Ast\Node\Template\HtmlTagDynamicAttributeNode;
-use Sapin\Ast\Node\Template\HtmlTagNode;
-use Sapin\Ast\Node\Template\HtmlTagStaticAttributeNode;
-use Sapin\Ast\Node\Template\SlotDeclarationNode;
-use Sapin\Ast\Node\Template\TemplateNode;
-use Sapin\Ast\Node\Template\TextNode;
-use Sapin\SapinException;
+use Sapin\Engine\Ast\Node\Template\ComponentCallNode;
+use Sapin\Engine\Ast\Node\Template\FragmentNode;
+use Sapin\Engine\Ast\Node\Template\HtmlTagDynamicAttributeNode;
+use Sapin\Engine\Ast\Node\Template\HtmlTagNode;
+use Sapin\Engine\Ast\Node\Template\HtmlTagStaticAttributeNode;
+use Sapin\Engine\Ast\Node\Template\SlotDeclarationNode;
+use Sapin\Engine\Ast\Node\Template\TemplateNode;
+use Sapin\Engine\Ast\Node\Template\TextNode;
+use Sapin\Engine\SapinException;
 
 final class HtmlTagNodeParser
 {
@@ -41,6 +41,24 @@ final class HtmlTagNodeParser
             : $this->parseHtmlTagNode($domNode);
     }
 
+    private function parseComponentCallNode(DOMNode $domNode, string $componentFqn): ComponentCallNode
+    {
+        /** @var array<string, string> $props */
+        $props = [];
+
+        /** @var DOMAttr $attribute */
+        foreach ($domNode->attributes ?? [] as $attribute) {
+            if (str_starts_with($attribute->name, ':')) {
+                $attributeName = substr($attribute->name, 1);
+                if (!in_array($attributeName, self::RESERVED_DYNAMIC_ATTRIBUTES)) {
+                    $props[$attributeName] = $attribute->value;
+                }
+            }
+        }
+
+        return new ComponentCallNode($componentFqn, $props);
+    }
+
     private function parseHtmlTagNode(DOMNode $domNode): HtmlTagNode
     {
         $attributes = [];
@@ -58,23 +76,5 @@ final class HtmlTagNodeParser
         }
 
         return new HtmlTagNode($domNode->nodeName, $attributes);
-    }
-
-    private function parseComponentCallNode(DOMNode $domNode, string $componentFqn): ComponentCallNode
-    {
-        /** @var array<string, string> $props */
-        $props = [];
-
-        /** @var DOMAttr $attribute */
-        foreach ($domNode->attributes ?? [] as $attribute) {
-            if (str_starts_with($attribute->name, ':')) {
-                $attributeName = substr($attribute->name, 1);
-                if (!in_array($attributeName, self::RESERVED_DYNAMIC_ATTRIBUTES)) {
-                    $props[$attributeName] = $attribute->value;
-                }
-            }
-        }
-
-        return new ComponentCallNode($componentFqn, $props);
     }
 }

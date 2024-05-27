@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class ComponentCallNode extends TemplateElementNode
 {
@@ -11,7 +11,7 @@ final class ComponentCallNode extends TemplateElementNode
      */
     public function __construct(
         protected readonly string $componentFqn,
-        protected readonly array $props,
+        protected readonly array  $props,
     ) {
         parent::__construct();
     }
@@ -40,7 +40,7 @@ final class ComponentCallNode extends TemplateElementNode
 
         $compiler
             ->writePhpOpeningTag()
-            ->write('\Sapin\Sapin::render(')
+            ->write('\\Sapin\\Engine\\Sapin::render(')
             ->write('new \\' . $this->componentFqn . '(')
             ->write(implode(',', $compiledProps))
             ->write(')');

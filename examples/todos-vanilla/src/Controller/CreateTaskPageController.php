@@ -3,6 +3,6 @@
 namespace App\Controller;
 
 use App\Component\CreateTaskPage;
-use Sapin\Sapin;
+use Sapin\Engine\Sapin;
 
 Sapin::render(new CreateTaskPage());

@@ -1,6 +1,6 @@
 <?php
 
-use Sapin\Sapin;
+use Sapin\Engine\Sapin;
 
 Sapin::configure(
     cacheDirectory: __DIR__ . '/../var/cache/components',

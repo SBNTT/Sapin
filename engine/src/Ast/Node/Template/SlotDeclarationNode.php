@@ -1,8 +1,8 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class SlotDeclarationNode extends TemplateElementNode
 {
@@ -23,7 +23,7 @@ final class SlotDeclarationNode extends TemplateElementNode
             ->write('};')
             ->write('$slotRenderer === null')
             ->write(' ? $defaultSlotRenderer()')
-            ->write(" : \$slotRenderer('" . $this->name. "', \$defaultSlotRenderer);")
+            ->write(" : \$slotRenderer('" . $this->name . "', \$defaultSlotRenderer);")
             ->writePhpClosingTag();
     }
 }

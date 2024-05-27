@@ -1,11 +1,11 @@
 <?php
 
-namespace Sapin\Ast\Node;
+namespace Sapin\Engine\Ast\Node;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
-use Sapin\Ast\Compiler;
-use Sapin\ComponentInterface;
+use Sapin\Engine\Ast\Compiler;
+use Sapin\Engine\ComponentInterface;
 
 final class ComponentNode extends AbstractNode
 {

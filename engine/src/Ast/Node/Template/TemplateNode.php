@@ -1,10 +1,10 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
-use Sapin\Ast\Node\AbstractNode;
-use Sapin\SapinException;
+use Sapin\Engine\Ast\Compiler;
+use Sapin\Engine\Ast\Node\AbstractNode;
+use Sapin\Engine\SapinException;
 
 final class TemplateNode extends AbstractNode
 {

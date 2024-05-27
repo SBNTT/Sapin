@@ -1,13 +1,12 @@
 <?php
 
-namespace Sapin\Test\Unit\Ast\Node\Template;
+namespace Sapin\Engine\Test\Unit\Ast\Node\Template;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Sapin\Ast\Compiler;
-use Sapin\Ast\Node\Template\TextNode;
-use Sapin\Test\Helper\CompilerMockingHelper;
+use Sapin\Engine\Ast\Node\Template\TextNode;
+use Sapin\Engine\Test\Helper\CompilerMockingHelper;
 
 final class TextNodeTest extends TestCase
 {
@@ -20,9 +19,9 @@ final class TextNodeTest extends TestCase
             ['foo bar buzz', 'foo bar buzz'],
 
             // with interpolations
-            ['{{ $foo }}', '<?php \\Sapin\\Sapin::echo($foo);?>'],
-            ['Hello, {{ $this->name }}!', 'Hello, <?php \\Sapin\\Sapin::echo($this->name);?>!'],
-            ['{{ $key }}:{{ $value }}', '<?php \\Sapin\\Sapin::echo($key);?>:<?php \\Sapin\\Sapin::echo($value);?>'],
+            ['{{ $foo }}', '<?php \\Sapin\\Engine\\Sapin::echo($foo);?>'],
+            ['Hello, {{ $this->name }}!', 'Hello, <?php \\Sapin\\Engine\\Sapin::echo($this->name);?>!'],
+            ['{{ $key }}:{{ $value }}', '<?php \\Sapin\\Engine\\Sapin::echo($key);?>:<?php \\Sapin\\Engine\\Sapin::echo($value);?>'],
         ];
     }
 

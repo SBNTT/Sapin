@@ -1,13 +1,13 @@
 <?php
 
-namespace Sapin\Ast\Node\Template;
+namespace Sapin\Engine\Ast\Node\Template;
 
-use Sapin\Ast\Compiler;
+use Sapin\Engine\Ast\Compiler;
 
 final class SlotContentNode extends TemplateElementNode
 {
     public function __construct(
-        public readonly string $name,
+        public readonly string               $name,
         private readonly TemplateElementNode $child
     ) {
         parent::__construct();
