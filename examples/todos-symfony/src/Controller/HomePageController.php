@@ -3,26 +3,29 @@
 namespace App\Controller;
 
 use App\Component\Greeter;
-use Sapin\Engine\Sapin;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Sapin\SymfonyBundle\AbstractSapinController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class HomePageController extends AbstractController
+final class HomePageController extends AbstractSapinController
 {
-    public function __construct(
-        private readonly KernelInterface $kernel,
-    ) {
-    }
-
     #[Route('/', methods: ['GET'])]
     public function index(): Response
     {
-        Sapin::configure(
-            cacheDirectory: $this->kernel->getCacheDir().'/components',
-        );
-
-        return new Response(Sapin::renderToString(new Greeter('John')));
+        return $this->renderComponent(new Greeter('John'));
     }
 }
+
+// Usage without extends:
+
+// #[AsController]
+// final class HomePageController
+// {
+//     use SapinTrait;
+//
+//     #[Route('/', methods: ['GET'])]
+//     public function index(): Response
+//     {
+//         return $this->renderComponent(new Greeter('John'));
+//     }
+// }
