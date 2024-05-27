@@ -7,9 +7,6 @@ use Sapin\Ast\Node\Template\ForNode;
 
 final class ForNodeParser
 {
-    /**
-     * @throws \Exception
-     */
     public function parse(string $expression, AbstractNode $child): ForNode
     {
         $forNode = new ForNode($expression);

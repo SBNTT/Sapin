@@ -12,11 +12,12 @@ use Sapin\Ast\Node\Template\SlotContentNode;
 use Sapin\Ast\Node\Template\TemplateElementNode;
 use Sapin\Ast\Node\Template\TemplateNode;
 use Sapin\Ast\Node\Template\TextNode;
+use Sapin\SapinException;
 
 final class TemplateElementNodeParser
 {
     /**
-     * @throws \Exception
+     * @throws SapinException
      */
     public function parse(DOMNode $domNode, TemplateNode $templateNode): ?TemplateElementNode
     {
@@ -53,12 +54,12 @@ final class TemplateElementNodeParser
             return $elementNode;
         }
 
-        throw new \Exception(sprintf('Unsupported DOMNode "%s"', get_class($domNode)));
+        throw new SapinException(sprintf('Unsupported DOMNode "%s"', get_class($domNode)));
     }
 
     /**
      * @return AbstractNode[]
-     * @throws \Exception
+     * @throws SapinException
      */
     public function parseChildren(DOMNode $domNode, TemplateNode $templateNode): array
     {

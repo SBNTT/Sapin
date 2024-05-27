@@ -28,7 +28,7 @@ final class ComponentNode extends AbstractNode
         $renderMethod->addComment('@inheritdoc ');
         $renderMethod->addParameter('slotRenderer')
             ->setType('callable')
-            ->setNullable(true)
+            ->setNullable()
             ->setDefaultValue(null);
         $renderMethod->setReturnType('void');
         $renderMethod->setBody('?>' . $childrenCompiler->getOut() . '<?php');

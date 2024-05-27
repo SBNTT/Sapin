@@ -7,9 +7,6 @@ use Sapin\Ast\Node\Template\ElseNode;
 
 final class ElseNodeParser
 {
-    /**
-     * @throws \Exception
-     */
     public function parse(AbstractNode $child): ElseNode
     {
         $elseNode = new ElseNode();

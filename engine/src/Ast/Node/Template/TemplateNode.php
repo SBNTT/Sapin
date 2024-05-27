@@ -2,7 +2,6 @@
 
 namespace Sapin\Ast\Node\Template;
 
-use Exception;
 use Sapin\Ast\Compiler;
 use Sapin\Ast\Node\AbstractNode;
 use Sapin\SapinException;
@@ -24,7 +23,7 @@ final class TemplateNode extends AbstractNode
     }
 
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     public function addUse(string $componentName, string $componentFqn): void
     {

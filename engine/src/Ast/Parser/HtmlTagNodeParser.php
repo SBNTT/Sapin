@@ -6,13 +6,13 @@ use DOMAttr;
 use DOMNode;
 use Sapin\Ast\Node\Template\ComponentCallNode;
 use Sapin\Ast\Node\Template\FragmentNode;
-use Sapin\Ast\Node\Template\HtmlTagAttributeNode;
 use Sapin\Ast\Node\Template\HtmlTagDynamicAttributeNode;
 use Sapin\Ast\Node\Template\HtmlTagNode;
 use Sapin\Ast\Node\Template\HtmlTagStaticAttributeNode;
 use Sapin\Ast\Node\Template\SlotDeclarationNode;
 use Sapin\Ast\Node\Template\TemplateNode;
 use Sapin\Ast\Node\Template\TextNode;
+use Sapin\SapinException;
 
 final class HtmlTagNodeParser
 {
@@ -21,7 +21,7 @@ final class HtmlTagNodeParser
     ];
 
     /**
-     * @throws \Exception
+     * @throws SapinException
      */
     public function parse(DOMNode $domNode, TemplateNode $templateNode): HtmlTagNode|ComponentCallNode|FragmentNode|SlotDeclarationNode
     {
@@ -31,7 +31,7 @@ final class HtmlTagNodeParser
 
         if ($domNode->nodeName === 'slot') {
             $slotName = $domNode->attributes?->getNamedItem(':name')?->nodeValue
-                ?? throw new \Exception('Missing ":name attribute on slot element');
+                ?? throw new SapinException('Missing ":name attribute on slot element');
 
             return new SlotDeclarationNode($slotName);
         }

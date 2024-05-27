@@ -2,39 +2,43 @@
 
 namespace Sapin\Ast\Parser;
 
-use Exception;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Sapin\Ast\Node\ComponentNode;
+use Sapin\SapinException;
 
 final class ComponentNodeParser
 {
     /**
-     * @throws Exception
+     * @throws SapinException
      */
-    public function parse(string $componentClassCode): ComponentNode
+    public function parse(string $componentFilePath): ComponentNode
     {
-        $componentFile = PhpFile::fromCode($componentClassCode);
-        $componentClass = $this->getComponentClass($componentFile) ?? throw new Exception('Component class not found');
+        $componentFileContents = file_get_contents($componentFilePath)
+            ?: throw new SapinException(sprintf('Failed to read contents of "%s"', $componentFilePath));
+
+        $componentFile = PhpFile::fromCode($componentFileContents);
+        $componentClass = $this->getComponentClass($componentFile)
+            ?? throw new SapinException(sprintf('No component class found in "%s"', $componentFilePath));
 
         $componentNode = new ComponentNode(
             file: $componentFile,
             class: $componentClass,
         );
 
-        $templateStart = strpos($componentClassCode, '<template')
-            ?: throw new Exception(sprintf(
-                'Could not find <template> opening tag for "%s" class',
+        $templateStart = strpos($componentFileContents, '<template')
+            ?: throw new SapinException(sprintf(
+                'Could not find <template> opening tag for "%s" component template',
                 $componentClass->getName()
             ));
 
-        $templateEnd = strpos($componentClassCode, '</template>')
-            ?: throw new Exception(sprintf(
-                'Could not find <template> closing tag for "%s" class',
+        $templateEnd = strpos($componentFileContents, '</template>')
+            ?: throw new SapinException(sprintf(
+                'Could not find <template> closing tag for "%s" component template',
                 $componentClass->getName()
             ));
 
-        $template = trim(substr($componentClassCode, $templateStart, $templateEnd + strlen('</template>') - $templateStart), "\n\r");
+        $template = trim(substr($componentFileContents, $templateStart, $templateEnd + strlen('</template>') - $templateStart), "\n\r");
         $componentNode->addChild((new TemplateNodeParser())->parse($template));
 
         return $componentNode;

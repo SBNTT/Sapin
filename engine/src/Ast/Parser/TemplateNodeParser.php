@@ -3,16 +3,16 @@
 namespace Sapin\Ast\Parser;
 
 use DOMNode;
-use Exception;
 use Masterminds\HTML5\Parser\DOMTreeBuilder;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
 use Sapin\Ast\Node\Template\TemplateNode;
+use Sapin\SapinException;
 
 final class TemplateNodeParser
 {
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     public function parse(string $html): TemplateNode
     {
@@ -48,27 +48,31 @@ final class TemplateNodeParser
     }
 
     /**
-     * @throws \Masterminds\HTML5\Exception
+     * @throws SapinException
      */
     private function parseHtmlTemplate(string $html): DOMNode
     {
-        // Default options from HTML5 class
-        $options = [
-            // Whether the serializer should aggressively encode all characters as entities.
-            'encode_entities' => false,
+        try {
+            // Default options from HTML5 class
+            $options = [
+                // Whether the serializer should aggressively encode all characters as entities.
+                'encode_entities' => false,
 
-            // Prevents the parser from automatically assigning the HTML5 namespace to the DOM document.
-            'disable_html_ns' => false,
-        ];
+                // Prevents the parser from automatically assigning the HTML5 namespace to the DOM document.
+                'disable_html_ns' => false,
+            ];
 
-        $events = new DOMTreeBuilder(false, $options);
-        $scanner = new Scanner($html, 'UTF-8');
-        $parser = new Tokenizer($scanner, $events, Tokenizer::CONFORMANT_XML);
+            $events = new DOMTreeBuilder(false, $options);
+            $scanner = new Scanner($html, 'UTF-8');
+            $parser = new Tokenizer($scanner, $events, Tokenizer::CONFORMANT_XML);
 
-        $parser->parse();
+            $parser->parse();
 
-        // $errors = $events->getErrors();
+            // $errors = $events->getErrors();
 
-        return $events->document()->getElementsByTagName('template')[0];
+            return $events->document()->getElementsByTagName('template')[0];
+        } catch (\Masterminds\HTML5\Exception $e) {
+            throw new SapinException('Failed to parse HTML template', previous: $e);
+        }
     }
 }

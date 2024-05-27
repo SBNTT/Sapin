@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "require": {
         "php": ">=8.1",
+        "ext-dom": "*",
         "nette/php-generator": "^4.1",
         "nikic/php-parser": "^5.0",
         "masterminds/html5": "^2.9"

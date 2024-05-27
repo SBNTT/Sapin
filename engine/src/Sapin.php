@@ -3,12 +3,12 @@
 namespace Sapin;
 
 use Composer\Autoload\ClassLoader;
-use Exception;
 use ReflectionException;
 use ReflectionObject;
 use Sapin\Ast\Compiler;
 use Sapin\Ast\Parser\ComponentNodeParser;
 use Stringable;
+use Throwable;
 
 abstract class Sapin
 {
@@ -17,12 +17,12 @@ abstract class Sapin
 
     public static function configure(
         string $cacheDirectory,
-        bool   $disableIncrementalCompilation = false
+        bool $disableIncrementalCompilation = false
     ): void {
         self::$cacheDirectory = $cacheDirectory;
         self::$disableIncrementalCompilation = $disableIncrementalCompilation;
         spl_autoload_register(
-            /** @throws Exception */
+            /** @throws SapinException */
             static function ($class) {
                 if (($componentFilePath = self::resolveComponentClassFilePath($class)) === null) {
                     return;
@@ -36,25 +36,28 @@ abstract class Sapin
     }
 
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     public static function render(object $component, ?callable $slotRenderer = null): void
     {
         if (!($component instanceof ComponentInterface)) {
-            throw new Exception(sprintf('This is not a valid component to render: "%s"', get_class($component)));
+            throw new SapinException(sprintf(
+                'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
+                get_class($component),
+            ));
         }
 
         $component->render($slotRenderer);
     }
 
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     public static function renderToString(object $component): string
     {
         ob_start();
         self::render($component);
-        return ob_get_clean() ?: throw new Exception('Failed to read output buffer contents');
+        return ob_get_clean() ?: throw new SapinException('Failed to read output buffer contents');
     }
 
     public static function echo(string|int|float|bool|Stringable $value): void
@@ -63,7 +66,7 @@ abstract class Sapin
     }
 
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     private static function compile(
         string $componentFilePath,
@@ -76,10 +79,19 @@ abstract class Sapin
             return;
         }
 
-        $contents = file_get_contents($componentFilePath)
-            ?: throw new Exception('Failed to read contents of "' . $componentFilePath . '"');
-
-        $componentNode = (new ComponentNodeParser())->parse($contents);
+        try {
+            $componentNode = (new ComponentNodeParser())->parse($componentFilePath);
+        } catch (SapinException $e) {
+            throw new SapinException(
+                sprintf('Failed to compile "%s" file', $componentFilePath),
+                previous: $e,
+            );
+        } catch (Throwable $t) {
+            throw new SapinException(
+                sprintf('Unexpected exception during compilation of "%s" file', $componentFilePath),
+                previous: $t,
+            );
+        }
 
         $compiler = new Compiler();
         $componentNode->compile($compiler);
@@ -89,11 +101,13 @@ abstract class Sapin
     }
 
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     private static function getCacheDirectory(): string
     {
-        return self::$cacheDirectory ?? throw new Exception('Sapin::configure function must be called first');
+        return self::$cacheDirectory ?? throw new SapinException(
+            'Failed to get cache directory. Sapin::configure function must be called first',
+        );
     }
 
     private static function resolveComponentClassFilePath(string $class): ?string
@@ -107,7 +121,7 @@ abstract class Sapin
                 if (is_string($filePath)) {
                     return $filePath;
                 }
-            } catch (ReflectionException $e) {
+            } catch (ReflectionException) {
             }
         }
 
@@ -115,7 +129,7 @@ abstract class Sapin
     }
 
     /**
-     * @throws Exception
+     * @throws SapinException
      */
     private static function resolveCompiledComponentFilePath(string $ComponentFqn): string
     {
