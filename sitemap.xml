@@ -2,82 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/component_linting/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/examples/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/installation/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/interop/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/introduction/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/lifecycle_hooks/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/roadmap/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/usage/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/composition/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/computed_attributes/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/conditional_rendering/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/fragments/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/interpolation/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/loops/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://sbntt.github.io/Sapin_docs/template_syntax/slots/</loc>
-         <lastmod>2024-05-05</lastmod>
+         <lastmod>2024-05-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
