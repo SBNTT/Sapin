@@ -9,4 +9,5 @@ site
 **/vendor
 **/*.cache
 
-engine/composer.lock
+**/composer.lock
+!examples/**/composer.lock
