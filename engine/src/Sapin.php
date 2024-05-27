@@ -131,11 +131,11 @@ abstract class Sapin
     /**
      * @throws SapinException
      */
-    private static function resolveCompiledComponentFilePath(string $ComponentFqn): string
+    private static function resolveCompiledComponentFilePath(string $componentFqn): string
     {
         return implode('/', [
             rtrim(self::getCacheDirectory(), '/'),
-            md5($ComponentFqn) . '.php'
+            md5($componentFqn) . '.php'
         ]);
     }
 }
