@@ -7,8 +7,10 @@ The template section of a Sapin component is written in HTML based syntax and  m
 The component compiler provides support for special attributes, and an interpolation syntax which can contains
 php expressions. There is no "language in the language", just php in html.
 
+A sapin component file must have the `.sapin` extension.
+
 ```html+php title="The Greeter component"
-<?php
+<?php 
 
 namespace App\Component;
 
