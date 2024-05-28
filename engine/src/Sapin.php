@@ -41,7 +41,7 @@ abstract class Sapin
             try {
                 $filePath = (new ReflectionObject($autoloader))
                     ->getMethod('findFileWithExtension')
-                    ->invoke($autoloader, $class, '.sapin');
+                    ->invoke($autoloader, $class, '.phtml');
 
                 if (is_string($filePath)) {
                     return $filePath;
