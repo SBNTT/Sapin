@@ -2,11 +2,17 @@
 
 namespace Sapin\Engine;
 
+use CallbackFilterIterator;
 use Composer\Autoload\ClassLoader;
+use FilesystemIterator;
+use Generator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use ReflectionException;
 use ReflectionObject;
 use Sapin\Engine\Ast\Compiler;
 use Sapin\Engine\Ast\Parser\ComponentNodeParser;
+use SplFileInfo;
 use Stringable;
 use Throwable;
 
@@ -14,6 +20,8 @@ abstract class Sapin
 {
     private static ?string $cacheDirectory = null;
     private static bool $disableIncrementalCompilation = false;
+
+    private const COMPONENT_FILE_EXTENSION = 'phtml';
 
     public static function configure(
         string $cacheDirectory,
@@ -52,6 +60,18 @@ abstract class Sapin
         return ob_get_clean() ?: throw new SapinException('Failed to read output buffer contents');
     }
 
+    /**
+     * @throws SapinException
+     */
+    public static function warmUpCache(): void
+    {
+        foreach (self::getAllAutoloadableComponentFilePathsGenerator() as $componentFileInfo) {
+            $componentFilePath = $componentFileInfo->getPathname();
+            $compiledComponentFilePath = self::getCompiledComponentFilePath($componentFilePath);
+            self::compile($componentFilePath, $compiledComponentFilePath);
+        }
+    }
+
     public static function echo(string|int|float|bool|Stringable $value): void
     {
         echo $value;
@@ -66,7 +86,7 @@ abstract class Sapin
             return;
         }
 
-        $compiledComponentFilePath = self::resolveCompiledComponentFilePath($componentFilePath);
+        $compiledComponentFilePath = self::getCompiledComponentFilePath($componentFilePath);
         self::compile($componentFilePath, $compiledComponentFilePath);
         require_once $compiledComponentFilePath;
     }
@@ -108,11 +128,11 @@ abstract class Sapin
 
     private static function resolveComponentClassFilePath(string $class): ?string
     {
-        foreach (ClassLoader::getRegisteredLoaders() as $autoloader) {
+        foreach (ClassLoader::getRegisteredLoaders() as $classLoader) {
             try {
-                $filePath = (new ReflectionObject($autoloader))
+                $filePath = (new ReflectionObject($classLoader))
                     ->getMethod('findFileWithExtension')
-                    ->invoke($autoloader, $class, '.phtml');
+                    ->invoke($classLoader, $class, '.' . self::COMPONENT_FILE_EXTENSION);
 
                 if (is_string($filePath)) {
                     return $filePath;
@@ -127,7 +147,7 @@ abstract class Sapin
     /**
      * @throws SapinException
      */
-    private static function resolveCompiledComponentFilePath(string $componentFilePath): string
+    private static function getCompiledComponentFilePath(string $componentFilePath): string
     {
         return implode('/', [
             rtrim(self::getCacheDirectory(), '/'),
@@ -143,5 +163,53 @@ abstract class Sapin
         return self::$cacheDirectory ?? throw new SapinException(
             'Failed to get cache directory. Sapin::configure function must be called first',
         );
+    }
+
+    /**
+     * @return Generator<SplFileInfo>
+     */
+    private static function getAllAutoloadableComponentFilePathsGenerator(): Generator
+    {
+        foreach (ClassLoader::getRegisteredLoaders() as $classLoader) {
+            foreach ([...$classLoader->getPrefixesPsr4(), ...$classLoader->getPrefixes()] as $paths) {
+                foreach ($paths as $path) {
+                    yield from self::getAllComponentFilesOfPathGenerator($path);
+                }
+            }
+
+            foreach ($classLoader->getClassMap() as $path) {
+                $fileInfo = new SplFileInfo($path);
+                if (self::isComponentFile($fileInfo)) {
+                    yield $fileInfo;
+                }
+            }
+        }
+
+        yield from [];
+    }
+
+    /**
+     * @return Generator<SplFileInfo>
+     */
+    private static function getAllComponentFilesOfPathGenerator(string $path): Generator
+    {
+        if (!is_dir($path)) {
+            return;
+        }
+
+        /** @var iterable<SplFileInfo> $iterator */
+        $iterator = new CallbackFilterIterator(
+            new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($path)
+            ),
+            [self::class, 'isComponentFile']
+        );
+
+        yield from $iterator;
+    }
+
+    private static function isComponentFile(SplFileInfo $file): bool
+    {
+        return $file->isFile() && $file->getExtension() === self::COMPONENT_FILE_EXTENSION;
     }
 }
