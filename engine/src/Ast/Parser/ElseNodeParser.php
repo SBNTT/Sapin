@@ -11,6 +11,7 @@ final class ElseNodeParser
     {
         $elseNode = new ElseNode();
         $elseNode->addChild($child);
+
         return $elseNode;
     }
 }

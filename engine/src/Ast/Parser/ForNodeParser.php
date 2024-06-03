@@ -11,6 +11,7 @@ final class ForNodeParser
     {
         $forNode = new ForNode($expression);
         $forNode->addChild($child);
+
         return $forNode;
     }
 }

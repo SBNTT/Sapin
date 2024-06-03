@@ -11,6 +11,7 @@ final class IfNodeParser
     {
         $ifNode = new IfNode($expression);
         $ifNode->addChild($child);
+
         return $ifNode;
     }
 }

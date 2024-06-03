@@ -11,6 +11,7 @@ final class ElseIfNodeParser
     {
         $elseIfNode = new ElseIfNode($expression);
         $elseIfNode->addChild($child);
+
         return $elseIfNode;
     }
 }

@@ -11,6 +11,7 @@ final class ForEachNodeParser
     {
         $forEachNode = new ForEachNode($expression);
         $forEachNode->addChild($child);
+
         return $forEachNode;
     }
 }
