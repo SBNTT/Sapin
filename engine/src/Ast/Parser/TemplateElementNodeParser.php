@@ -19,7 +19,7 @@ final class TemplateElementNodeParser
     /**
      * @throws SapinException
      */
-    public function parse(DOMNode $domNode, TemplateNode $templateNode): ?TemplateElementNode
+    public function tryParse(DOMNode $domNode, TemplateNode $templateNode): ?TemplateElementNode
     {
         if ($domNode instanceof DOMComment) {
             return null;
@@ -32,7 +32,11 @@ final class TemplateElementNodeParser
                 content: trim($value),
             );
         } elseif ($domNode instanceof DOMElement) {
-            $elementNode = (new HtmlTagNodeParser())->parse($domNode, $templateNode);
+            $elementNode =
+                   (new FragmentNodeParser())->tryParse($domNode)
+                ?? (new SlotDeclarationNodeParser())->tryParse($domNode)
+                ?? (new ComponentCallNodeParser())->tryParse($domNode, $templateNode)
+                ?? (new HtmlTagNodeParser())->parse($domNode);
 
             $elementNode->addChildren($this->parseChildren($domNode, $templateNode));
 
@@ -55,6 +59,7 @@ final class TemplateElementNodeParser
                     default => null,
                 } ?? $elementNode;
             }
+
             return $elementNode;
         }
 
@@ -69,7 +74,7 @@ final class TemplateElementNodeParser
     {
         return array_filter(
             array_map(
-                fn (DOMNode $childNode) => $this->parse($childNode, $templateNode),
+                fn (DOMNode $childNode) => $this->tryParse($childNode, $templateNode),
                 iterator_to_array($domNode->childNodes),
             ),
             fn (?AbstractNode $node) => $node !== null && (!($node instanceof TextNode) || !$node->isEmpty()),

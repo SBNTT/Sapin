@@ -4,6 +4,7 @@ namespace Sapin\Engine\Ast\Parser;
 
 use DOMNode;
 use Masterminds\HTML5\Parser\DOMTreeBuilder;
+use Masterminds\HTML5\Exception as HTML5Exception;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
 use Sapin\Engine\Ast\Node\Template\TemplateNode;
@@ -11,6 +12,10 @@ use Sapin\Engine\SapinException;
 
 final class TemplateNodeParser
 {
+    public const RESERVED_DYNAMIC_ATTRIBUTES = [
+        'foreach', 'for', 'if', 'else-if', 'else', 'slot'
+    ];
+
     /**
      * @throws SapinException
      */
@@ -71,7 +76,7 @@ final class TemplateNodeParser
             // $errors = $events->getErrors();
 
             return $events->document()->getElementsByTagName('template')[0];
-        } catch (\Masterminds\HTML5\Exception $e) {
+        } catch (HTML5Exception $e) {
             throw new SapinException('Failed to parse HTML template', previous: $e);
         }
     }
