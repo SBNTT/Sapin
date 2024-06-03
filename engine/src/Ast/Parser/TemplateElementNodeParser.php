@@ -24,8 +24,12 @@ final class TemplateElementNodeParser
         if ($domNode instanceof DOMComment) {
             return null;
         } elseif ($domNode instanceof DOMText) {
+            if (($value = $domNode->nodeValue) === null) {
+                return null;
+            }
+
             return new TextNode(
-                content: trim($domNode->nodeValue ?? ''),
+                content: trim($value),
             );
         } elseif ($domNode instanceof DOMElement) {
             $elementNode = (new HtmlTagNodeParser())->parse($domNode, $templateNode);
