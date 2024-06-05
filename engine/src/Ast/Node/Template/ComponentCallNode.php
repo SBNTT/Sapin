@@ -28,14 +28,24 @@ final class ComponentCallNode extends TemplateElementNode
          * @var array<string, string> $slots
          */
         $slots = [];
-        foreach ($this->children as $childNode) {
-            if (!($childNode instanceof SlotContentNode)) {
-                continue;
-            }
 
+        /** @var TemplateElementNode[] $childrenSlotNodes */
+        $childrenSlotNodes = [];
+
+        foreach ($this->children as $childNode) {
+            if ($childNode instanceof SlotContentNode) {
+                $slotCompiler = new Compiler();
+                $childNode->compile($slotCompiler);
+                $slots[$childNode->name] = $slotCompiler->getOut();
+            } else {
+                $childrenSlotNodes[] = $childNode;
+            }
+        }
+
+        if (count($childrenSlotNodes) > 0) {
             $slotCompiler = new Compiler();
-            $childNode->compile($slotCompiler);
-            $slots[$childNode->name] = $slotCompiler->getOut();
+            $slotCompiler->compileNodes($childrenSlotNodes);
+            $slots['children'] = $slotCompiler->getOut();
         }
 
         $compiler
@@ -47,25 +57,21 @@ final class ComponentCallNode extends TemplateElementNode
 
         if (count($slots) > 0) {
             $compiler
-                ->write(',')
-                ->write('function(string $slot,callable $default){');
+                ->write(',function(string $slot,callable $default){')
+                ->write('switch($slot){');
 
-            $if = false;
             foreach ($slots as $slotName => $slotValue) {
                 $compiler
-                    ->write($if ? 'else if' : 'if')
-                    ->write("(\$slot==='" . $slotName . "'){")
+                    ->write("case'" . $slotName . "':")
                     ->writePhpClosingTag()
                     ->write($slotValue)
                     ->writePhpOpeningTag()
-                    ->write('}');
-
-                $if = true;
+                    ->write('break;');
             }
 
             $compiler
-                ->write('else{$default();}')
-                ->write('}');
+                ->write('default:$default();')
+                ->write('}}');
         }
 
         $compiler

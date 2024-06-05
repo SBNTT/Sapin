@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Sapin\Engine\Ast\Compiler;
+use Sapin\Engine\Ast\Node\AbstractNode;
 use Sapin\Engine\Ast\Node\Template\ComponentCallNode;
 use Sapin\Engine\Ast\Node\Template\SlotContentNode;
 use Sapin\Engine\Ast\Node\Template\TemplateElementNode;
@@ -34,32 +35,38 @@ final class ComponentCallNodeTest extends TestCase
 
             [
                 fn (TestCase $context) => ['MyComponent', [], [
-                    $context->createMock(TemplateElementNode::class),
+                    self::createMockTemplateElementNode($context, 'c1'),
                     self::createMockSlotContentNode($context, 'slot1'),
-                    $context->createMock(TemplateElementNode::class),
+                    self::createMockTemplateElementNode($context, 'c2'),
                 ]],
                 implode('', [
                     "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),function(string \$slot,callable \$default){",
-                    "if(\$slot==='slot1'){?>[slot1]<?php }",
-                    "else{\$default();}",
-                    "});?>",
+                    'switch($slot){',
+                    "case'slot1':?>[slot1]<?php break;",
+                    "case'children':?>[c1][c2]<?php break;",
+                    'default:$default();',
+                    '}',
+                    '});?>'
                 ]),
             ],
 
             [
                 fn (TestCase $context) => ['MyComponent', [], [
                     self::createMockSlotContentNode($context, 'slot1'),
-                    $context->createMock(TemplateElementNode::class),
+                    self::createMockTemplateElementNode($context, 'c1'),
                     self::createMockSlotContentNode($context, 'slot2'),
                     self::createMockSlotContentNode($context, 'slot3'),
                 ]],
                 implode('', [
                     "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),function(string \$slot,callable \$default){",
-                    "if(\$slot==='slot1'){?>[slot1]<?php }",
-                    "else if(\$slot==='slot2'){?>[slot2]<?php }",
-                    "else if(\$slot==='slot3'){?>[slot3]<?php }",
-                    "else{\$default();}",
-                    "});?>",
+                    'switch($slot){',
+                    "case'slot1':?>[slot1]<?php break;",
+                    "case'slot2':?>[slot2]<?php break;",
+                    "case'slot3':?>[slot3]<?php break;",
+                    "case'children':?>[c1]<?php break;",
+                    'default:$default();',
+                    '}',
+                    '});?>'
                 ]),
             ],
 
@@ -72,11 +79,13 @@ final class ComponentCallNodeTest extends TestCase
                 implode('', [
                     "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar',buzz:true),",
                     "function(string \$slot,callable \$default){",
-                    "if(\$slot==='slot1'){?>[slot1]<?php }",
-                    "else if(\$slot==='slot2'){?>[slot2]<?php }",
-                    "else if(\$slot==='slot3'){?>[slot3]<?php }",
-                    "else{\$default();}",
-                    "});?>",
+                    'switch($slot){',
+                    "case'slot1':?>[slot1]<?php break;",
+                    "case'slot2':?>[slot2]<?php break;",
+                    "case'slot3':?>[slot3]<?php break;",
+                    'default:$default();',
+                    '}',
+                    '});?>'
                 ]),
             ],
         ];
@@ -98,6 +107,21 @@ final class ComponentCallNodeTest extends TestCase
         $mockNode->method('compile')
             ->willReturnCallback(function (Compiler $compiler) use ($slotName) {
                 $compiler->write('[' . $slotName . ']');
+            });
+
+        return $mockNode;
+    }
+
+    /**
+     * @return MockObject&TemplateElementNode
+     */
+    private static function createMockTemplateElementNode(TestCase $context, string $name): MockObject
+    {
+        $mockNode = $context->createMock(TemplateElementNode::class);
+
+        $mockNode->method('compile')
+            ->willReturnCallback(function (Compiler $compiler) use ($name) {
+                $compiler->write('[' . $name . ']');
             });
 
         return $mockNode;
