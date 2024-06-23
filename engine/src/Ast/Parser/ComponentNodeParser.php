@@ -5,6 +5,7 @@ namespace Sapin\Engine\Ast\Parser;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Sapin\Engine\Ast\Node\ComponentNode;
+use Sapin\Engine\Ast\Node\Template\TemplateNode;
 use Sapin\Engine\SapinException;
 
 final class ComponentNodeParser
@@ -26,20 +27,9 @@ final class ComponentNodeParser
             class: $componentClass,
         );
 
-        $templateStart = strpos($componentFileContents, '<template')
-            ?: throw new SapinException(sprintf(
-                'Could not find <template> opening tag for "%s" component template',
-                $componentClass->getName()
-            ));
-
-        $templateEnd = strpos($componentFileContents, '</template>')
-            ?: throw new SapinException(sprintf(
-                'Could not find <template> closing tag for "%s" component template',
-                $componentClass->getName()
-            ));
-
-        $template = trim(substr($componentFileContents, $templateStart, $templateEnd + strlen('</template>') - $templateStart), "\n\r");
-        $componentNode->addChild((new TemplateNodeParser())->parse($template));
+        if (($templateNode = $this->tryParseTemplateNode($componentClass, $componentFileContents)) !== null) {
+            $componentNode->addChild($templateNode);
+        }
 
         return $componentNode;
     }
@@ -53,5 +43,31 @@ final class ComponentNodeParser
         }
 
         return null;
+    }
+
+    /**
+     * @throws SapinException
+     */
+    private function tryParseTemplateNode(ClassType $componentClass, string $componentFileContents): ?TemplateNode
+    {
+        $templateStart = strpos($componentFileContents, '<template');
+        $templateEnd = strpos($componentFileContents, '</template>');
+
+        if ($templateStart === false) {
+            return null;
+        }
+
+        if ($templateEnd === false) {
+            throw new SapinException(sprintf(
+                'Unterminated <template> node in %s component',
+                $componentClass->getName()
+            ));
+        }
+
+        return (new TemplateNodeParser())->parse(substr(
+            $componentFileContents,
+            $templateStart,
+            $templateEnd + strlen('</template>') - $templateStart,
+        ));
     }
 }
