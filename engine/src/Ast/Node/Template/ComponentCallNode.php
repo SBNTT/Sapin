@@ -57,7 +57,7 @@ final class ComponentCallNode extends TemplateElementNode
 
         if (count($slots) > 0) {
             $compiler
-                ->write(',function(string $slot,callable $default){')
+                ->write(',function(string $slot,callable $default) use ($context){')
                 ->write('switch($slot){');
 
             foreach ($slots as $slotName => $slotValue) {
@@ -72,9 +72,12 @@ final class ComponentCallNode extends TemplateElementNode
             $compiler
                 ->write('default:$default();')
                 ->write('}}');
+        } else {
+            $compiler->write(',null');
         }
 
         $compiler
+            ->write(',$context')
             ->write(');')
             ->writePhpClosingTag();
     }

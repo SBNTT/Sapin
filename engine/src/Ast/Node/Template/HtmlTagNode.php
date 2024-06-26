@@ -11,7 +11,7 @@ final class HtmlTagNode extends TemplateElementNode
      */
     public function __construct(
         private readonly string $name,
-        private readonly array  $attributes,
+        private array $attributes,
     ) {
         parent::__construct();
     }
@@ -30,5 +30,10 @@ final class HtmlTagNode extends TemplateElementNode
             ->write('>')
             ->compileNodes($this->children)
             ->write('</' . strtolower($this->name) . '>');
+    }
+
+    public function addAttribute(HtmlTagAttributeNode $attributeNode): void
+    {
+        $this->attributes[] = $attributeNode;
     }
 }

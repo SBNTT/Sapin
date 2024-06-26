@@ -7,7 +7,11 @@ use Masterminds\HTML5\Parser\DOMTreeBuilder;
 use Masterminds\HTML5\Exception as HTML5Exception;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
+use Sapin\Engine\Ast\Node\AbstractNode;
+use Sapin\Engine\Ast\Node\Template\HtmlTagNode;
+use Sapin\Engine\Ast\Node\Template\HtmlTagStaticAttributeNode;
 use Sapin\Engine\Ast\Node\Template\TemplateNode;
+use Sapin\Engine\Ast\Node\Template\TextNode;
 use Sapin\Engine\SapinException;
 
 final class TemplateNodeParser
@@ -19,7 +23,7 @@ final class TemplateNodeParser
     /**
      * @throws SapinException
      */
-    public function parse(string $html): TemplateNode
+    public function parse(string $html, string $scopeId): TemplateNode
     {
         $templateDomNode = $this->parseHtmlTemplate($html);
 
@@ -48,6 +52,14 @@ final class TemplateNodeParser
         $templateNode->addChildren(
             (new TemplateElementNodeParser())->parseChildren($templateDomNode, $templateNode),
         );
+
+        $rootHtmlTagNodes = $this->findFirstDescendantsHtmlTagNodes($templateNode);
+        foreach ($rootHtmlTagNodes as $rooHtmlTagNode) {
+            $rooHtmlTagNode->addAttribute(new HtmlTagStaticAttributeNode(
+                name: 'data-scope',
+                value: new TextNode($scopeId),
+            ));
+        }
 
         return $templateNode;
     }
@@ -79,5 +91,24 @@ final class TemplateNodeParser
         } catch (HTML5Exception $e) {
             throw new SapinException('Failed to parse HTML template', previous: $e);
         }
+    }
+
+    /**
+     * @return HtmlTagNode[]
+     */
+    private function findFirstDescendantsHtmlTagNodes(AbstractNode $node): array
+    {
+        if ($node instanceof HtmlTagNode) {
+            return [$node];
+        }
+
+        $descendants = [];
+        foreach ($node->getChildren() as $child) {
+            foreach ($this->findFirstDescendantsHtmlTagNodes($child) as $descendant) {
+                $descendants[] = $descendant;
+            }
+        }
+
+        return $descendants;
     }
 }

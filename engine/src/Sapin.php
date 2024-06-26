@@ -38,8 +38,11 @@ abstract class Sapin
     /**
      * @throws SapinException
      */
-    public static function render(object $component, ?callable $slotRenderer = null): void
-    {
+    public static function render(
+        object $component,
+        ?callable $slotRenderer = null,
+        RenderingContext $context = new RenderingContext(),
+    ): void {
         if (!($component instanceof ComponentInterface)) {
             throw new SapinException(sprintf(
                 'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
@@ -47,7 +50,12 @@ abstract class Sapin
             ));
         }
 
-        $component->render($slotRenderer);
+        $component->render($context, $slotRenderer);
+
+        if (!in_array($component::class, $context->renderedComponentStyles, true)) {
+            $component->renderStyles($context);
+            $context->renderedComponentStyles[] = $component::class;
+        }
     }
 
     /**

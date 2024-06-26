@@ -5,33 +5,52 @@ namespace Sapin\Engine\Ast\Node;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Sapin\Engine\Ast\Compiler;
+use Sapin\Engine\Ast\Node\Template\TemplateNode;
 use Sapin\Engine\ComponentInterface;
+use Sapin\Engine\RenderingContext;
 
 final class ComponentNode extends AbstractNode
 {
+    /**
+     * @param StyleNode[] $styleNodes
+     */
     public function __construct(
         private readonly PhpFile   $file,
         private readonly ClassType $class,
+        private readonly ?TemplateNode $templateNode,
+        private readonly array $styleNodes,
     ) {
         parent::__construct();
     }
 
     public function compile(Compiler $compiler): void
     {
-        $childrenCompiler = new Compiler();
-        $childrenCompiler->compileNodes($this->children);
+        $templateCompiler = new Compiler();
+        if ($this->templateNode !== null) {
+            $templateCompiler->compileNode($this->templateNode);
+        }
 
-        // $this->class->setName('_' . $this->class->getName());
+        $stylesCompiler = new Compiler();
+        $stylesCompiler->compileNodes($this->styleNodes);
+
         $this->class->addImplement(ComponentInterface::class);
 
-        $renderMethod = $this->class->addMethod('render');
-        $renderMethod->addComment('@inheritdoc ');
-        $renderMethod->addParameter('slotRenderer')
+        $renderTemplateMethod = $this->class->addMethod('render');
+        $renderTemplateMethod->addComment('@inheritdoc ');
+        $renderTemplateMethod->addParameter('context')
+            ->setType(RenderingContext::class);
+        $renderTemplateMethod->addParameter('slotRenderer')
             ->setType('callable')
             ->setNullable()
             ->setDefaultValue(null);
-        $renderMethod->setReturnType('void');
-        $renderMethod->setBody('?>' . $childrenCompiler->getOut() . '<?php');
+        $renderTemplateMethod->setReturnType('void');
+        $renderTemplateMethod->setBody('?>' . $templateCompiler->getOut() . '<?php');
+
+        $renderStylesMethod = $this->class->addMethod('renderStyles');
+        $renderStylesMethod->addParameter('context')
+            ->setType(RenderingContext::class);
+        $renderStylesMethod->setReturnType('void');
+        $renderStylesMethod->setBody('?>' . $stylesCompiler->getOut() . '<?php');
 
         $compiler->write((string)$this->file);
     }

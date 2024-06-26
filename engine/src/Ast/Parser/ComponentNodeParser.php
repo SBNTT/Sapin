@@ -5,6 +5,8 @@ namespace Sapin\Engine\Ast\Parser;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Sapin\Engine\Ast\Node\ComponentNode;
+use Sapin\Engine\Ast\Node\ScopedStyleNode;
+use Sapin\Engine\Ast\Node\StyleNode;
 use Sapin\Engine\Ast\Node\Template\TemplateNode;
 use Sapin\Engine\SapinException;
 
@@ -19,19 +21,18 @@ final class ComponentNodeParser
             ?: throw new SapinException(sprintf('Failed to read contents of "%s"', $componentFilePath));
 
         $componentFile = PhpFile::fromCode($componentFileContents);
+
         $componentClass = $this->getComponentClass($componentFile)
             ?? throw new SapinException(sprintf('No component class found in "%s"', $componentFilePath));
 
-        $componentNode = new ComponentNode(
+        $scopeId = uniqid();
+
+        return new ComponentNode(
             file: $componentFile,
             class: $componentClass,
+            templateNode: $this->tryParseTemplateNode($componentClass, $componentFileContents, $scopeId, ),
+            styleNodes: $this->parseStyleNodes($componentFileContents, $scopeId),
         );
-
-        if (($templateNode = $this->tryParseTemplateNode($componentClass, $componentFileContents)) !== null) {
-            $componentNode->addChild($templateNode);
-        }
-
-        return $componentNode;
     }
 
     private function getComponentClass(PhpFile $file): ?ClassType
@@ -48,8 +49,11 @@ final class ComponentNodeParser
     /**
      * @throws SapinException
      */
-    private function tryParseTemplateNode(ClassType $componentClass, string $componentFileContents): ?TemplateNode
-    {
+    private function tryParseTemplateNode(
+        ClassType $componentClass,
+        string $componentFileContents,
+        string $scopeId,
+    ): ?TemplateNode {
         $templateStart = strpos($componentFileContents, '<template');
         $templateEnd = strpos($componentFileContents, '</template>');
 
@@ -68,6 +72,25 @@ final class ComponentNodeParser
             $componentFileContents,
             $templateStart,
             $templateEnd + strlen('</template>') - $templateStart,
-        ));
+        ), $scopeId);
+    }
+
+    /**
+     * @return StyleNode[]
+     */
+    private function parseStyleNodes(string $componentFileContents, string $scopeId): array
+    {
+        preg_match_all(
+            '/<style(\s+scoped)?\s*?>([\s\S]*)<\/style>/U',
+            $componentFileContents,
+            $matches,
+            PREG_SET_ORDER,
+        );
+
+        return array_map(function (array $styleMatch) use ($scopeId) {
+            return $styleMatch[1] !== ''
+                ? new ScopedStyleNode($styleMatch[2], $scopeId)
+                : new StyleNode($styleMatch[2]);
+        }, $matches);
     }
 }
