@@ -2,6 +2,7 @@
 
 namespace Sapin\Engine\Ast\Parser;
 
+use MatthiasMullie\Minify;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Sapin\Engine\Ast\Node\ComponentNode;
@@ -30,7 +31,7 @@ final class ComponentNodeParser
         return new ComponentNode(
             file: $componentFile,
             class: $componentClass,
-            templateNode: $this->tryParseTemplateNode($componentClass, $componentFileContents, $scopeId, ),
+            templateNode: $this->tryParseTemplateNode($componentClass, $componentFileContents, $scopeId),
             styleNodes: $this->parseStyleNodes($componentFileContents, $scopeId),
         );
     }
@@ -88,9 +89,11 @@ final class ComponentNodeParser
         );
 
         return array_map(function (array $styleMatch) use ($scopeId) {
+            $minifiedStyle = (new Minify\CSS($styleMatch[2]))->minify();
+
             return $styleMatch[1] !== ''
-                ? new ScopedStyleNode($styleMatch[2], $scopeId)
-                : new StyleNode($styleMatch[2]);
+                ? new ScopedStyleNode($minifiedStyle, $scopeId)
+                : new StyleNode($minifiedStyle);
         }, $matches);
     }
 }
