@@ -47,10 +47,10 @@ final class TemplateNodeParser
         }
 
         $templateNode->addChildren(
-            (new TemplateElementNodeParser())->parseChildren($templateDomNode, $templateNode),
+            (new TemplateElementNodeParser())->parseChildren($templateDomNode, $templateNode, $scopeId),
         );
 
-        $rootHtmlTagNodes = $this->findFirstDescendantsHtmlTagNodes($templateNode);
+        $rootHtmlTagNodes = ParsingHelper::findFirstDescendantsNodesOfType($templateNode, HtmlTagNode::class);
         foreach ($rootHtmlTagNodes as $rooHtmlTagNode) {
             $rooHtmlTagNode->addAttribute(new HtmlTagStaticAttributeNode(
                 name: 'data-scope',
@@ -69,28 +69,9 @@ final class TemplateNodeParser
         try {
             $document = (new HTML5())->loadHTML($html);
 
-            return $events->document()->getElementsByTagName('template')[0];
+            return $document->getElementsByTagName('template')[0];
         } catch (HTML5Exception $e) {
             throw new SapinException('Failed to parse HTML template', previous: $e);
         }
-    }
-
-    /**
-     * @return HtmlTagNode[]
-     */
-    private function findFirstDescendantsHtmlTagNodes(AbstractNode $node): array
-    {
-        if ($node instanceof HtmlTagNode) {
-            return [$node];
-        }
-
-        $descendants = [];
-        foreach ($node->getChildren() as $child) {
-            foreach ($this->findFirstDescendantsHtmlTagNodes($child) as $descendant) {
-                $descendants[] = $descendant;
-            }
-        }
-
-        return $descendants;
     }
 }

@@ -4,7 +4,6 @@ namespace Sapin\Engine;
 
 use CallbackFilterIterator;
 use Composer\Autoload\ClassLoader;
-use FilesystemIterator;
 use Generator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -52,7 +51,9 @@ abstract class Sapin
 
         $component->render($context, $slotRenderer);
 
-        if (!in_array($component::class, $context->renderedComponentStyles, true)) {
+        if ($context->shouldRenderStyles
+            && !in_array($component::class, $context->renderedComponentStyles, true)
+        ) {
             $component->renderStyles($context);
             $context->renderedComponentStyles[] = $component::class;
         }

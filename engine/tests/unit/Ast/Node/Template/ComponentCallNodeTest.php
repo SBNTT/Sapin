@@ -20,17 +20,17 @@ final class ComponentCallNodeTest extends TestCase
         return [
             [
                 fn (TestCase $context) => ['MyComponent', [], []],
-                '<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent());?>',
+                '<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),null,$context);?>',
             ],
 
             [
                 fn (TestCase $context) => ['MyComponent', ['foo' => "'bar'"], []],
-                "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar'));?>",
+                '<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:\'bar\'),null,$context);?>',
             ],
 
             [
                 fn (TestCase $context) => ['MyComponent', ['foo' => "'bar'", 'buzz' => 'true'], []],
-                "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar',buzz:true));?>",
+                '<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:\'bar\',buzz:true),null,$context);?>',
             ],
 
             [
@@ -40,13 +40,15 @@ final class ComponentCallNodeTest extends TestCase
                     self::createMockTemplateElementNode($context, 'c2'),
                 ]],
                 implode('', [
-                    "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),function(string \$slot,callable \$default){",
+                    '<?php \\Sapin\\Engine\\Sapin::render(',
+                    'new \\MyComponent(),',
+                    'function(string $slot,callable $default) use ($context){',
                     'switch($slot){',
-                    "case'slot1':?>[slot1]<?php break;",
-                    "case'children':?>[c1][c2]<?php break;",
+                    'case\'slot1\':?>[slot1]<?php break;',
+                    'case\'children\':?>[c1][c2]<?php break;',
                     'default:$default();',
-                    '}',
-                    '});?>'
+                    '}},$context',
+                    ');?>'
                 ]),
             ],
 
@@ -58,15 +60,17 @@ final class ComponentCallNodeTest extends TestCase
                     self::createMockSlotContentNode($context, 'slot3'),
                 ]],
                 implode('', [
-                    "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(),function(string \$slot,callable \$default){",
+                    '<?php \\Sapin\\Engine\\Sapin::render(',
+                    'new \\MyComponent(),',
+                    'function(string $slot,callable $default) use ($context){',
                     'switch($slot){',
-                    "case'slot1':?>[slot1]<?php break;",
-                    "case'slot2':?>[slot2]<?php break;",
-                    "case'slot3':?>[slot3]<?php break;",
-                    "case'children':?>[c1]<?php break;",
+                    'case\'slot1\':?>[slot1]<?php break;',
+                    'case\'slot2\':?>[slot2]<?php break;',
+                    'case\'slot3\':?>[slot3]<?php break;',
+                    'case\'children\':?>[c1]<?php break;',
                     'default:$default();',
-                    '}',
-                    '});?>'
+                    '}},$context',
+                    ');?>'
                 ]),
             ],
 
@@ -77,15 +81,16 @@ final class ComponentCallNodeTest extends TestCase
                     self::createMockSlotContentNode($context, 'slot3'),
                 ]],
                 implode('', [
-                    "<?php \\Sapin\\Engine\\Sapin::render(new \\MyComponent(foo:'bar',buzz:true),",
-                    "function(string \$slot,callable \$default){",
+                    '<?php \\Sapin\\Engine\\Sapin::render(',
+                    'new \\MyComponent(foo:\'bar\',buzz:true),',
+                    'function(string $slot,callable $default) use ($context){',
                     'switch($slot){',
-                    "case'slot1':?>[slot1]<?php break;",
-                    "case'slot2':?>[slot2]<?php break;",
-                    "case'slot3':?>[slot3]<?php break;",
+                    'case\'slot1\':?>[slot1]<?php break;',
+                    'case\'slot2\':?>[slot2]<?php break;',
+                    'case\'slot3\':?>[slot3]<?php break;',
                     'default:$default();',
-                    '}',
-                    '});?>'
+                    '}},$context',
+                    ');?>'
                 ]),
             ],
         ];
