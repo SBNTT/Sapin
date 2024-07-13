@@ -3,11 +3,8 @@
 namespace Sapin\Engine\Ast\Parser;
 
 use DOMNode;
-use Masterminds\HTML5\Parser\DOMTreeBuilder;
+use Masterminds\HTML5;
 use Masterminds\HTML5\Exception as HTML5Exception;
-use Masterminds\HTML5\Parser\Scanner;
-use Masterminds\HTML5\Parser\Tokenizer;
-use Sapin\Engine\Ast\Node\AbstractNode;
 use Sapin\Engine\Ast\Node\Template\HtmlTagNode;
 use Sapin\Engine\Ast\Node\Template\HtmlTagStaticAttributeNode;
 use Sapin\Engine\Ast\Node\Template\TemplateNode;
@@ -70,22 +67,7 @@ final class TemplateNodeParser
     private function parseHtmlTemplate(string $html): DOMNode
     {
         try {
-            // Default options from HTML5 class
-            $options = [
-                // Whether the serializer should aggressively encode all characters as entities.
-                'encode_entities' => false,
-
-                // Prevents the parser from automatically assigning the HTML5 namespace to the DOM document.
-                'disable_html_ns' => false,
-            ];
-
-            $events = new DOMTreeBuilder(false, $options);
-            $scanner = new Scanner($html, 'UTF-8');
-            $parser = new Tokenizer($scanner, $events, Tokenizer::CONFORMANT_XML);
-
-            $parser->parse();
-
-            // $errors = $events->getErrors();
+            $document = (new HTML5())->loadHTML($html);
 
             return $events->document()->getElementsByTagName('template')[0];
         } catch (HTML5Exception $e) {

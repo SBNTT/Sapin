@@ -9,6 +9,8 @@ use Sapin\Engine\Ast\Node\Template\HtmlTagNode;
 use Sapin\Engine\Ast\Node\Template\HtmlTagStaticAttributeNode;
 use Sapin\Engine\Ast\Node\Template\TextNode;
 
+use function strtolower;
+
 final class HtmlTagNodeParser
 {
     public function parse(DOMNode $domNode): HtmlTagNode
@@ -18,7 +20,7 @@ final class HtmlTagNodeParser
         /** @var DOMAttr $attribute */
         foreach ($domNode->attributes ?? [] as $attribute) {
             if (str_starts_with($attribute->name, ':')) {
-                $attributeName = substr($attribute->name, 1);
+                $attributeName = strtolower(substr($attribute->name, 1));
                 if (!in_array($attributeName, TemplateNodeParser::RESERVED_DYNAMIC_ATTRIBUTES)) {
                     $attributes[] = new HtmlTagDynamicAttributeNode($attributeName, $attribute->value);
                 }
@@ -27,6 +29,6 @@ final class HtmlTagNodeParser
             }
         }
 
-        return new HtmlTagNode($domNode->nodeName, $attributes);
+        return new HtmlTagNode(strtolower($domNode->nodeName), $attributes);
     }
 }

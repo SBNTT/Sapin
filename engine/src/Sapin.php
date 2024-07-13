@@ -114,6 +114,8 @@ abstract class Sapin
         }
 
         try {
+            @require_once 'html5_parser_monkey_patch.php';
+
             $componentNode = (new ComponentNodeParser())->parse($componentFilePath);
         } catch (SapinException $e) {
             throw new SapinException(
