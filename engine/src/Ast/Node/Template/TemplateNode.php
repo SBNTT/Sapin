@@ -8,7 +8,7 @@ use Sapin\Engine\SapinException;
 
 final class TemplateNode extends AbstractNode
 {
-    /** @var array<string, string> */
+    /** @var array<string, class-string> */
     private array $usesMap;
 
     public function __construct()
@@ -32,9 +32,16 @@ final class TemplateNode extends AbstractNode
             $componentName
         ));
 
+        if (!class_exists($componentFqn)) {
+            throw new SapinException(sprintf('Unknown component class "%s"', $componentFqn));
+        }
+
         $this->usesMap[$componentName] = $componentFqn;
     }
 
+    /**
+     * @return class-string|null
+     */
     public function getUse(string $componentName): ?string
     {
         return $this->usesMap[$componentName] ?? null;

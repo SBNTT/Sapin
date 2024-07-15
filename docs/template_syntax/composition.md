@@ -24,7 +24,7 @@ not matter given that Sapin will invoke the constructor with the named argument 
 ```html
 <template :uses="App\Component\Greeter">
     <h1>My app</h1>
-    <Greeter :name="'John'" />
+    <Greeter :name="John" />
 </template>
 ```
 
@@ -71,7 +71,7 @@ An import can be aliased following the same syntax as php:
     <template :uses="App\Component\Greeter">
         <Greeter
             :if="$this->shouldGreet"
-            :name="'John'"
+            :name="John"
         />
     </template>
     ```
