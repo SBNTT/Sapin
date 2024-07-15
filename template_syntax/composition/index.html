@@ -794,7 +794,7 @@
 not matter given that Sapin will invoke the constructor with the named argument syntax.
 <div class="language-html highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">&lt;</span><span class="nt">template</span> <span class="na">:uses</span><span class="o">=</span><span class="s">&quot;App\Component\Greeter&quot;</span><span class="p">&gt;</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>My app<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="p">&lt;</span><span class="nt">Greeter</span> <span class="na">:name</span><span class="o">=</span><span class="s">&quot;&#39;John&#39;&quot;</span> <span class="p">/&gt;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="p">&lt;</span><span class="nt">Greeter</span> <span class="na">:name</span><span class="o">=</span><span class="s">&quot;John&quot;</span> <span class="p">/&gt;</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
 </span></code></pre></div></p>
 <p>the <code>:uses</code> attribute may contains multiple imports. They must be coma separated. Trailing comas are allowed.</p>
@@ -832,7 +832,7 @@ not matter given that Sapin will invoke the constructor with the named argument 
 <div class="language-html highlight"><span class="filename">Conditionaly render a component</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">&lt;</span><span class="nt">template</span> <span class="na">:uses</span><span class="o">=</span><span class="s">&quot;App\Component\Greeter&quot;</span><span class="p">&gt;</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="p">&lt;</span><span class="nt">Greeter</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="na">:if</span><span class="o">=</span><span class="s">&quot;$this-&gt;shouldGreet&quot;</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="na">:name</span><span class="o">=</span><span class="s">&quot;&#39;John&#39;&quot;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="na">:name</span><span class="o">=</span><span class="s">&quot;John&quot;</span>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="p">/&gt;</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
 </span></code></pre></div></p>
