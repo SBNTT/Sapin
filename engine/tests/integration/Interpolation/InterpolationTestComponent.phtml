@@ -1,0 +1,16 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\Interpolation;
+
+final class InterpolationTestComponent
+{
+    public function __construct(
+        public string $name,
+    ) {}
+} ?>
+
+<template>
+    <span data-content="Hello, {{ $this->name }}!">
+        Hello, {{ $this->name }}!
+    </span>
+</template>

@@ -1,0 +1,19 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\If;
+
+final class IfTestComponent
+{
+    public function __construct(
+            public int $a,
+            public int $b,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <fragment :if="$this->a > $this->b">
+        a is greater than b!
+    </fragment>
+</template>

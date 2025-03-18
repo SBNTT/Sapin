@@ -1,0 +1,12 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ComponentCallWithProps;
+
+final class ComponentCallWithPropsTestComponent
+{
+
+} ?>
+
+<template :uses="Sapin\Engine\Test\Integration\ComponentCallWithProps\GreeterTestComponent">
+    <GreeterTestComponent name="Capybaras" times="3"/>
+</template>

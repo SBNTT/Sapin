@@ -1,0 +1,28 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\Slot;
+
+final class CardTestComponent
+{
+
+} ?>
+
+<template>
+    <div class="class">
+        <div class="card-title">
+            <slot :name="title">
+                Default title
+            </slot>
+        </div>
+
+        <div class="card-content">
+            <slot :name="content"></slot>
+        </div>
+
+        <div class="card-footer">
+            <slot :name="footer">
+                Default footer
+            </slot>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,12 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ComputedAttribute;
+
+final class ComputedAttributeTestComponent
+{
+    public string $myProp = 'foo';
+} ?>
+
+<template>
+    <div :data-test="$this->myProp"></div>
+</template>

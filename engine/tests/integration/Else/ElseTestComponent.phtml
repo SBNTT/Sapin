@@ -1,0 +1,22 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\Else;
+
+final class ElseTestComponent
+{
+    public function __construct(
+            public int $a,
+            public int $b,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <fragment :if="$this->a === $this->b">
+        a is the same as b!
+    </fragment>
+    <fragment :else>
+        a is not the same as b!
+    </fragment>
+</template>

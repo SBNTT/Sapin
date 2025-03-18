@@ -1,0 +1,23 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ForEachLoop;
+
+final class ForEachLoopTestComponentB
+{
+    /**
+     * @param int[] $numbers
+     */
+    public function __construct(
+            public readonly array $numbers,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <ul>
+        <li :foreach="$this->numbers as $number" :if="$number % 2 === 0">
+            {{ $number }}
+        </li>
+    </ul>
+</template>

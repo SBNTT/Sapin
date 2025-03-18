@@ -1,0 +1,20 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ForLoop;
+
+final class ForLoopTestComponent
+{
+    public function __construct(
+            public readonly int $times,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <ul>
+        <li :for="$i = 0; $i < $this->times; $i++">
+            {{ $i }}
+        </li>
+    </ul>
+</template>

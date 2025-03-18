@@ -1,0 +1,23 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ForEachLoop;
+
+final class ForEachLoopTestComponentA
+{
+    /**
+     * @param string[] $fruits
+     */
+    public function __construct(
+            public readonly array $fruits,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <ul>
+        <li :foreach="$this->fruits as $fruit">
+            {{ $fruit }}
+        </li>
+    </ul>
+</template>

@@ -1,0 +1,24 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\Slot;
+
+final class SlotTestComponentA
+{
+
+} ?>
+
+<template :uses="Sapin\Engine\Test\Integration\Slot\CardTestComponent">
+    <CardTestComponent>
+        <fragment :slot="title">
+            My card title
+        </fragment>
+
+        <p :slot="content">
+            My card content
+        </p>
+
+        <fragment :slot="footer">
+            My card footer
+        </fragment>
+    </CardTestComponent>
+</template>

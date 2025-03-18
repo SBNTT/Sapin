@@ -1,0 +1,12 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ComponentCallAlias;
+
+final class ComponentCallAliasTestComponent
+{
+
+} ?>
+
+<template :uses="Sapin\Engine\Test\Integration\ComponentCallAlias\GreeterTestComponent as GreeterTestComponentAlias">
+    <GreeterTestComponentAlias/>
+</template>

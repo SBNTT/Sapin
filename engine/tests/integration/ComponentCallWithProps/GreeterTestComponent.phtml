@@ -1,0 +1,17 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ComponentCallWithProps;
+
+final class GreeterTestComponent
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly int $times,
+    )
+    {
+    }
+} ?>
+
+<template>
+    Hello, {{ $this->name }} {{ $this->times }} times!
+</template>

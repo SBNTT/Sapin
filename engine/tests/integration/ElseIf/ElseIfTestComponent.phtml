@@ -1,0 +1,22 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ElseIf;
+
+final class ElseIfTestComponent
+{
+    public function __construct(
+            public int $a,
+            public int $b,
+    )
+    {
+    }
+} ?>
+
+<template>
+    <fragment :if="$this->a > $this->b">
+        a is greater than b!
+    </fragment>
+    <fragment :else-if="$this->a < $this->b">
+        a is smaller than b!
+    </fragment>
+</template>
