@@ -1,14 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sapin\Engine;
 
-final class RenderingContext
-{
-    /** @var class-string[] */
-    public array $renderedComponentStyles = [];
-
-    public function __construct(
-        public readonly bool $shouldRenderStyles = true,
-    ) {
-    }
-}
+final class RenderingContext {}

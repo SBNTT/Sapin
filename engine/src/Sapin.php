@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sapin\Engine;
 
 use CallbackFilterIterator;
@@ -9,34 +11,37 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionException;
 use ReflectionObject;
-use Sapin\Engine\Ast\Compiler;
-use Sapin\Engine\Ast\Parser\ComponentNodeParser;
+use Sapin\Engine\Compiler\ComponentCompiler;
+use Sapin\Engine\Compiler\SourceCodeBuffer;
+use Sapin\Engine\Parser\Component\ComponentParser;
 use SplFileInfo;
 use Stringable;
 use Throwable;
+use function in_array;
+use function is_string;
+use function sprintf;
 
 abstract class Sapin
 {
     private static ?string $cacheDirectory = null;
+
     private static bool $disableIncrementalCompilation = false;
 
     private const COMPONENT_FILE_EXTENSION = 'phtml';
 
     public static function configure(
         string $cacheDirectory,
-        bool   $disableIncrementalCompilation = false
+        bool $disableIncrementalCompilation = false,
     ): void {
         self::$cacheDirectory = $cacheDirectory;
         self::$disableIncrementalCompilation = $disableIncrementalCompilation;
 
-        if (!in_array([self::class, 'autoload'], spl_autoload_functions())) {
+        if (!in_array([self::class, 'autoload'], spl_autoload_functions(), true)) {
             spl_autoload_register([self::class, 'autoload']);
         }
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     public static function render(
         object $component,
         ?callable $slotRenderer = null,
@@ -45,33 +50,23 @@ abstract class Sapin
         if (!($component instanceof ComponentInterface)) {
             throw new SapinException(sprintf(
                 'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
-                get_class($component),
+                $component::class,
             ));
         }
 
         $component->render($context, $slotRenderer);
-
-        if ($context->shouldRenderStyles
-            && !in_array($component::class, $context->renderedComponentStyles, true)
-        ) {
-            $component->renderStyles($context);
-            $context->renderedComponentStyles[] = $component::class;
-        }
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     public static function renderToString(object $component): string
     {
         ob_start();
         self::render($component);
-        return ob_get_clean() ?: throw new SapinException('Failed to read output buffer contents');
+
+        return ob_get_clean() ?: '';
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     public static function warmUpCache(): void
     {
         foreach (self::getAllAutoloadableComponentFilePathsGenerator() as $componentFileInfo) {
@@ -86,9 +81,7 @@ abstract class Sapin
         echo $value;
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     private static function autoload(string $class): void
     {
         if (($componentFilePath = self::resolveComponentClassFilePath($class)) === null) {
@@ -97,12 +90,11 @@ abstract class Sapin
 
         $compiledComponentFilePath = self::getCompiledComponentFilePath($componentFilePath);
         self::compile($componentFilePath, $compiledComponentFilePath);
+
         require_once $compiledComponentFilePath;
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     private static function compile(
         string $componentFilePath,
         string $compiledComponentFilePath,
@@ -115,9 +107,7 @@ abstract class Sapin
         }
 
         try {
-            @require_once 'html5_parser_monkey_patch.php';
-
-            $componentNode = (new ComponentNodeParser())->parse($componentFilePath);
+            $componentNode = ComponentParser::parseFile($componentFilePath);
         } catch (SapinException $e) {
             throw new SapinException(
                 sprintf('Failed to compile "%s" file', $componentFilePath),
@@ -130,11 +120,12 @@ abstract class Sapin
             );
         }
 
-        $compiler = new Compiler();
-        $componentNode->compile($compiler);
+        $buffer = new SourceCodeBuffer();
+        ComponentCompiler::compileComponentNode($componentNode, $buffer);
 
         !is_dir(self::getCacheDirectory()) && mkdir(self::getCacheDirectory(), recursive: true);
-        file_put_contents($compiledComponentFilePath, $compiler->getOut());
+
+        file_put_contents($compiledComponentFilePath, $buffer->getOut());
     }
 
     private static function resolveComponentClassFilePath(string $class): ?string
@@ -155,20 +146,16 @@ abstract class Sapin
         return null;
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     private static function getCompiledComponentFilePath(string $componentFilePath): string
     {
         return implode('/', [
             rtrim(self::getCacheDirectory(), '/'),
-            md5($componentFilePath) . '.php'
+            md5($componentFilePath) . '.php',
         ]);
     }
 
-    /**
-     * @throws SapinException
-     */
+    /** @throws SapinException */
     private static function getCacheDirectory(): string
     {
         return self::$cacheDirectory ?? throw new SapinException(
@@ -176,13 +163,16 @@ abstract class Sapin
         );
     }
 
-    /**
-     * @return Generator<SplFileInfo>
-     */
+    /** @return Generator<SplFileInfo> */
     private static function getAllAutoloadableComponentFilePathsGenerator(): Generator
     {
         foreach (ClassLoader::getRegisteredLoaders() as $classLoader) {
-            foreach ([...$classLoader->getPrefixesPsr4(), ...$classLoader->getPrefixes()] as $paths) {
+            $paths = [
+                ...$classLoader->getPrefixesPsr4(),
+                ...$classLoader->getPrefixes(),
+            ];
+
+            foreach ($paths as $paths) {
                 foreach ($paths as $path) {
                     yield from self::getAllComponentFilesOfPathGenerator($path);
                 }
@@ -199,9 +189,7 @@ abstract class Sapin
         yield from [];
     }
 
-    /**
-     * @return Generator<SplFileInfo>
-     */
+    /** @return Generator<SplFileInfo> */
     private static function getAllComponentFilesOfPathGenerator(string $path): Generator
     {
         if (!is_dir($path)) {
@@ -211,9 +199,9 @@ abstract class Sapin
         /** @var iterable<SplFileInfo> $iterator */
         $iterator = new CallbackFilterIterator(
             new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($path)
+                new RecursiveDirectoryIterator($path),
             ),
-            [self::class, 'isComponentFile']
+            [self::class, 'isComponentFile'],
         );
 
         yield from $iterator;
