@@ -127,10 +127,12 @@ abstract class Stage2Parser
                 Stage1\DynamicAttributeNode::class => new Stage2\DynamicAttributeNode(
                     name: $attribute->name,
                     expression: $attribute->expression,
+                    delimiter: $attribute->delimiter,
                 ),
                 Stage1\StaticAttributeNode::class => new Stage2\StaticAttributeNode(
                     name: $attribute->name,
                     children: self::convertStage1AttributeChildrenToStage2Ones($attribute->children),
+                    delimiter: $attribute->delimiter,
                 ),
             },
             $attributes,

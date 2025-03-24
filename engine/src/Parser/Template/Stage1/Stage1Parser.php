@@ -19,32 +19,46 @@ use const PREG_SET_ORDER;
 abstract class Stage1Parser
 {
     private const REGEX = <<<REGEXP
-            /
-                  <!-- \s* (?<comment>.*?) \s* -->
+        /
+              <!-- \s* (?<comment>.*?) \s* -->
 
-                | <
-                    (?<opening_tag_name>[^\s\/>]+)
-                    \s*
-                    (?<tag_attributes>(?:\s*[^\s=>\/"]+(?:="[^"]*")?)+)?
-                    \s*
-                    (?<closing_char>\/)?
-                    \s*
-                  >
+            | <
+                (?<opening_tag_name>[^\s\/>]+)
+                \s*
+                (?<tag_attributes>(?:
+                      (?:\s*[^\s=>\/"]+(?:="[^"]*")?)
+                    | (?:\s*[^\s=>\/"]+(?:='[^']*')?)
+                )+)?
+                \s*
+                (?<closing_char>\/)?
+                \s*
+              >
 
-                | <\/
-                    (?<closing_tag_name>[^\s\/]+)
-                    \s*
-                  >
+            | <\/
+                (?<closing_tag_name>[^\s\/]+)
+                \s*
+              >
 
-                | {{ (?<interpolation>[^}]*) }}
+            | {{ \s* (?<interpolation>[^}]*) \s* }}
 
-                | (?<raw>
-                    (?:\S\s?) | (?: (?<=\}\})\s(?!\s*\}\}) | \s(?=\}\}) )
-                  )
-            /xm
-        REGEXP;
+            | (?<raw>
+                (?:\S\s?) | (?: (?<=\}\})\s(?!\s*\}\}) | \s(?=\}\}) )
+              )
+        /xm
+    REGEXP;
 
-    private const ATTRIBUTES_REGEX = '/(?<attribute_name>[^\s="]+)(?:="(?<attribute_value>(?:[^"\\\\]|\\\\.)*)")?/m';
+    private const ATTRIBUTES_REGEX = <<<REGEXP
+        /
+            (?<attribute_name>[^\s="]+)
+            (?:
+                =
+                (?:
+                      (?:"(?<attribute_value_dq>(?:[^"\\\\]|\\\\.)*)")
+                    | (?:'(?<attribute_value_sq>(?:[^'\\\\]|\\\\.)*)')
+                )
+            )?
+        /xm
+    REGEXP;
 
     private const ATTRIBUTE_VALUE_REGEX = '/(?<raw>[^{}]*)?(?:{{\s*(?<interpolation>[^}\s]*)\s*}})?/m';
 
@@ -94,16 +108,24 @@ abstract class Stage1Parser
         return array_map(
             function ($attributeMatch) {
                 $name = $attributeMatch['attribute_name'];
+
+                $singleQuotedValue = $attributeMatch['attribute_value_sq'] ?? '' ?: null;
+                $doubleQuotedValue = $attributeMatch['attribute_value_dq'] ?? '' ?: null;
+
+                $value = $doubleQuotedValue ?? $singleQuotedValue ?? '';
+                $delimiter = $value === $singleQuotedValue ? "'" : '"';
+
                 if (str_starts_with($name, ':')) {
                     return new DynamicAttributeNode(
                         name: substr($name, 1),
-                        expression: $attributeMatch['attribute_value'] ?? '',
+                        expression: $value,
+                        delimiter: $delimiter,
                     );
                 }
 
                 preg_match_all(
                     self::ATTRIBUTE_VALUE_REGEX,
-                    $attributeMatch['attribute_value'] ?? '',
+                    $value,
                     $attributeValueMatches,
                     PREG_SET_ORDER,
                 );
@@ -123,6 +145,7 @@ abstract class Stage1Parser
                 return new StaticAttributeNode(
                     name: $name,
                     children: $nodes,
+                    delimiter: $delimiter,
                 );
             },
             $attributesMatches,

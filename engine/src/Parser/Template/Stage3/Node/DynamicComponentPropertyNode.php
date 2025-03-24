@@ -11,6 +11,6 @@ final class DynamicComponentPropertyNode extends DynamicAttributeNode
         string $expression,
         public string $type,
     ) {
-        parent::__construct($name, $expression);
+        parent::__construct($name, $expression, '');
     }
 }

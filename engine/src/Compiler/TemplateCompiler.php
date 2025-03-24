@@ -293,22 +293,24 @@ abstract class TemplateCompiler
     {
         $buffer
             ->write($node->name)
-            ->write('="')
+            ->write('=')
+            ->write($node->delimiter)
             ->writePhpOpeningTag()
             ->write('\\Sapin\\Engine\\Sapin::echo(')
             ->write($node->expression)
             ->write(');')
             ->writePhpClosingTag()
-            ->write('"');
+            ->write($node->delimiter);
     }
 
     private static function compileStaticAttributeNode(Stage3\StaticAttributeNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
             ->write($node->name)
-            ->write('="')
+            ->write('=')
+            ->write($node->delimiter)
             ->subCompile(fn () => self::compileNodes($node->children, $buffer))
-            ->write('"');
+            ->write($node->delimiter);
     }
 
     private static function getNodeNextSibling(Stage3\AbstractNode $node): ?Stage3\AbstractNode

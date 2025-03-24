@@ -141,14 +141,14 @@ final class Stage3Parser
                     $attributesNodes[] = new Stage3\DynamicAttributeNode(
                         name: $node->name,
                         expression: $node->expression,
+                        delimiter: $node->delimiter,
                     );
                 }
             } elseif ($node instanceof Stage2\StaticAttributeNode) {
                 $attributesNodes[] = new Stage3\StaticAttributeNode(
                     name: $node->name,
-                    children: self::convertStage2AttributeChildrenToStage3Ones(
-                        $node->children,
-                    ),
+                    children: self::convertStage2AttributeChildrenToStage3Ones($node->children),
+                    delimiter: $node->delimiter,
                 );
             }
         }

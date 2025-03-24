@@ -10,5 +10,6 @@ final class StaticAttributeNode extends AbstractNode
     public function __construct(
         public readonly string $name,
         public readonly array $children,
+        public readonly string $delimiter,
     ) {}
 }

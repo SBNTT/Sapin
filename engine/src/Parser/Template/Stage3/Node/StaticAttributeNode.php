@@ -13,6 +13,7 @@ class StaticAttributeNode extends AbstractCompositeNode
     public function __construct(
         public readonly string $name,
         array $children,
+        public readonly string $delimiter,
     ) {
         parent::__construct($children);
     }

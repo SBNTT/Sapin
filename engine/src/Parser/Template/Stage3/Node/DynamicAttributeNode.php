@@ -9,5 +9,6 @@ class DynamicAttributeNode extends AbstractNode
     public function __construct(
         public readonly string $name,
         public readonly string $expression,
+        public readonly string $delimiter,
     ) {}
 }

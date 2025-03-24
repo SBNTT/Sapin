@@ -12,6 +12,6 @@ final class StaticComponentPropertyNode extends StaticAttributeNode
         array $children,
         public string $type,
     ) {
-        parent::__construct($name, $children);
+        parent::__construct($name, $children, '');
     }
 }
