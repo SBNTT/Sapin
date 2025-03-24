@@ -60,7 +60,13 @@ abstract class Stage1Parser
         /xm
     REGEXP;
 
-    private const ATTRIBUTE_VALUE_REGEX = '/(?<raw>[^{}]*)?(?:{{\s*(?<interpolation>[^}\s]*)\s*}})?/m';
+    private const ATTRIBUTE_VALUE_REGEX = <<<REGEXP
+        /
+              {{\s*(?<interpolation>.*?)\s*}}
+            | (?<raw>(?:[^{]|\{(?!\{))*)
+        
+        /xm
+    REGEXP;
 
     /** @return AbstractNode[] */
     public static function parseString(string $content): array
