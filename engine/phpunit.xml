@@ -9,10 +9,6 @@
          failOnRisky="true"
          failOnWarning="true"
 >
-    <extensions>
-        <bootstrap class="DG\BypassFinals\PHPUnitExtension"/>
-    </extensions>
-
     <testsuites>
         <testsuite name="unit">
             <directory>tests/unit</directory>
