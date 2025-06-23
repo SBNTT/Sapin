@@ -19,54 +19,54 @@ use const PREG_SET_ORDER;
 abstract class Stage1Parser
 {
     private const REGEX = <<<REGEXP
-        /
-              <!-- \s* (?<comment>.*?) \s* -->
+            /
+                  <!-- \s* (?<comment>.*?) \s* -->
 
-            | <
-                (?<opening_tag_name>[^\s\/>]+)
-                \s*
-                (?<tag_attributes>(?:
-                      (?:\s*[^\s=>\/"]+(?:="[^"]*")?)
-                    | (?:\s*[^\s=>\/"]+(?:='[^']*')?)
-                )+)?
-                \s*
-                (?<closing_char>\/)?
-                \s*
-              >
+                | <
+                    (?<opening_tag_name>[^\s\/>]+)
+                    \s*
+                    (?<tag_attributes>(?:
+                          (?:\s*[^\s=>\/"]+(?:="[^"]*")?)
+                        | (?:\s*[^\s=>\/"]+(?:='[^']*')?)
+                    )+)?
+                    \s*
+                    (?<closing_char>\/)?
+                    \s*
+                  >
 
-            | <\/
-                (?<closing_tag_name>[^\s\/]+)
-                \s*
-              >
+                | <\/
+                    (?<closing_tag_name>[^\s\/]+)
+                    \s*
+                  >
 
-            | {{ \s* (?<interpolation>[^}]*) \s* }}
+                | {{ \s* (?<interpolation>[^}]*) \s* }}
 
-            | (?<raw>
-                (?:\S\s?) | (?: (?<=\}\})\s(?!\s*\}\}) | \s(?=\}\}) )
-              )
-        /xm
-    REGEXP;
+                | (?<raw>
+                    (?:\S\s?) | (?: (?<=\}\})\s(?!\s*\}\}) | \s(?=\}\}) )
+                  )
+            /xm
+        REGEXP;
 
     private const ATTRIBUTES_REGEX = <<<REGEXP
-        /
-            (?<attribute_name>[^\s="]+)
-            (?:
-                =
+            /
+                (?<attribute_name>[^\s="]+)
                 (?:
-                      (?:"(?<attribute_value_dq>(?:[^"\\\\]|\\\\.)*)")
-                    | (?:'(?<attribute_value_sq>(?:[^'\\\\]|\\\\.)*)')
-                )
-            )?
-        /xm
-    REGEXP;
+                    =
+                    (?:
+                          (?:"(?<attribute_value_dq>(?:[^"\\\\]|\\\\.)*)")
+                        | (?:'(?<attribute_value_sq>(?:[^'\\\\]|\\\\.)*)')
+                    )
+                )?
+            /xm
+        REGEXP;
 
     private const ATTRIBUTE_VALUE_REGEX = <<<REGEXP
-        /
-              {{\s*(?<interpolation>.*?)\s*}}
-            | (?<raw>(?:[^{]|\{(?!\{))*)
-        
-        /xm
-    REGEXP;
+            /
+                  {{\s*(?<interpolation>.*?)\s*}}
+                | (?<raw>(?:[^{]|\{(?!\{))*)
+
+            /xm
+        REGEXP;
 
     /** @return AbstractNode[] */
     public static function parseString(string $content): array
