@@ -118,11 +118,6 @@ final class Stage3Parser
             ?? self::tryParseComponentCallNode($node, $children, $componentsMetadata)
             ?? new Stage3\PairedTagNode($node->name, $attributes, $children);
 
-        // TODO: move this to applySpecialAttributes ?
-        if (($slotAttribute = self::tryGetStage2DynamicAttributeByName($node->attributes, 'slot')) !== null) {
-            return new Stage3\SlotContentNode($slotAttribute->expression, $stage3Node);
-        }
-
         return self::applySpecialAttributes($stage3Node, $node->attributes);
     }
 
@@ -172,7 +167,9 @@ final class Stage3Parser
         array $children,
     ): ?Stage3\SlotDeclarationNode {
         // TODO: produce an error if name is slot and :name attribute is missing ?
-        if ($node->name === 'slot' && ($nameAttribute = self::tryGetStage2DynamicAttributeByName($node->attributes, 'name')) !== null) {
+        if ($node->name === 'slot'
+            && ($nameAttribute = self::tryGetStage2DynamicAttributeByName($node->attributes, 'name')) !== null
+        ) {
             return new Stage3\SlotDeclarationNode(
                 $nameAttribute->expression,
                 $children,
@@ -250,6 +247,7 @@ final class Stage3Parser
                 'else' => new Stage3\ElseNode($node),
                 'foreach' => new Stage3\ForEachNode($attribute->expression, $node),
                 'for' => new Stage3\ForNode($attribute->expression, $node),
+                'slot' => new Stage3\SlotContentNode($attribute->expression, $node),
                 default => null,
             } ?? $node;
         }
