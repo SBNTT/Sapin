@@ -1,0 +1,14 @@
+<?php
+
+namespace Sapin\Engine\Test\Integration\ChildrenSlot;
+
+final class ChildrenSlotTestComponent
+{
+
+} ?>
+
+<template :uses="Sapin\Engine\Test\Integration\ChildrenSlot\ContainerTestComponent">
+    <ContainerTestComponent>
+        Hello, World!
+    </ContainerTestComponent>
+</template>
