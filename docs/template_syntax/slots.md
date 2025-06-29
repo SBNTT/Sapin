@@ -37,7 +37,7 @@ final readonly class Card
 In this example, the component Card defines three slots: title, content, and footer.
 
 ## Using slots
-```html
+```html+php
 <?php
 namespace App\Component;
 
@@ -74,3 +74,40 @@ When defining a slot content, you do not have access to any additional scope. In
 
 In this case, since the title and footer slots are not filled, the default content specified in the 
 Card component template is used.
+
+## Default slot
+When a child element of a component does not explicitly declare a `:slot` attribute, it is automatically assigned to a
+reserved slot named `children`. 
+
+This implicit slot behaves like any named slot and can be referenced in the component template using:
+
+```html
+<slot :name="children" />
+```
+
+This provides a convenient shorthand for content that does not require an explicit slot declaration, while preserving 
+full control in the component layout.
+
+```html+php
+<?php
+namespace App\Component;
+
+final readonly class Card 
+{
+} ?>
+
+<template>
+    <div class="card">
+        <slot :name="children" />
+    </div>
+</template>
+```
+
+```html
+<template>
+    <Card>
+        <p>This paragraph is implicitly assigned to the "children" slot.</p>
+        <p>This one too :)</p>
+    </Card>
+</template>
+```
