@@ -15,7 +15,10 @@ abstract class ComponentTestCase extends TestCase
     {
         parent::setUpBeforeClass();
 
-        Sapin::configure('.phpunit.cache/sapin');
+        Sapin::configure(
+            cacheDirectory: '.phpunit.cache/sapin',
+            disableIncrementalCompilation: true,
+        );
     }
 
     protected static function renderComponent(object $component): HTMLDocument
