@@ -8,21 +8,10 @@ use Sapin\Engine\Parser\Template\Stage2\Node as Stage2;
 use Sapin\Engine\Parser\Template\Stage3\Node as Stage3;
 use Sapin\Engine\SapinException;
 use function count;
-use function in_array;
 use function sprintf;
 
 final class Stage3Parser
 {
-    private const RESERVED_DYNAMIC_ATTRIBUTES = [
-        'foreach',
-        'for',
-        'if',
-        'else-if',
-        'else',
-        'slot',
-        'name',
-    ];
-
     /**
      * @param Stage2\AbstractNode[] $nodes
      * @throws SapinException
@@ -77,12 +66,17 @@ final class Stage3Parser
         return new Stage3\InterpolationNode(expression: $node->expression);
     }
 
+    /** @throws SapinException */
     private static function parseInlineTagNode(Stage2\InlineTagNode $node): Stage3\AbstractNode
     {
-        return new Stage3\InlineTagNode(
+        [$attributes, $specialAttributes] = self::parseAttributesNodes($node->attributes);
+
+        $stage3Node = new Stage3\InlineTagNode(
             name: $node->name,
-            attributes: self::parseAttributesNodes($node->attributes),
+            attributes: $attributes,
         );
+
+        return self::applySpecialAttributes($stage3Node, $specialAttributes);
     }
 
     /**
@@ -93,13 +87,13 @@ final class Stage3Parser
         Stage2\SelfClosedTagNode $node,
         array $componentsMetadata,
     ): Stage3\AbstractNode {
-        $attributes = self::parseAttributesNodes($node->attributes);
+        [$attributes, $specialAttributes] = self::parseAttributesNodes($node->attributes);
 
         $stage3Node = self::tryParseSlotDeclarationNode($node, [])
-            ?? (self::tryParseComponentCallNode($node, [], $componentsMetadata)
+            ?? (self::tryParseComponentCallNode($node, $attributes, [], $componentsMetadata)
             ?? new Stage3\PairedTagNode($node->name, $attributes, []));
 
-        return self::applySpecialAttributes($stage3Node, $node->attributes);
+        return self::applySpecialAttributes($stage3Node, $specialAttributes);
     }
 
     /**
@@ -110,29 +104,46 @@ final class Stage3Parser
         Stage2\PairedTagNode $node,
         array $componentsMetadata,
     ): Stage3\AbstractNode {
-        $children = array_map(fn ($node) => self::parseStage2Node($node, $componentsMetadata), $node->children);
-        $attributes = self::parseAttributesNodes($node->attributes);
+        $children = array_map(
+            fn ($node) => self::parseStage2Node($node, $componentsMetadata),
+            $node->children,
+        );
+
+        [$attributes, $specialAttributes] = self::parseAttributesNodes($node->attributes);
 
         $stage3Node = self::tryParseFragmentNode($node, $children)
             ?? self::tryParseSlotDeclarationNode($node, $children)
-            ?? self::tryParseComponentCallNode($node, $children, $componentsMetadata)
+            ?? self::tryParseComponentCallNode($node, $attributes, $children, $componentsMetadata)
             ?? new Stage3\PairedTagNode($node->name, $attributes, $children);
 
-        return self::applySpecialAttributes($stage3Node, $node->attributes);
+        return self::applySpecialAttributes($stage3Node, $specialAttributes);
     }
 
     /**
      * @param array<Stage2\DynamicAttributeNode|Stage2\StaticAttributeNode> $nodes
-     * @return array<Stage3\DynamicAttributeNode|Stage3\StaticAttributeNode>
+     * @throws SapinException
+     * @return array{
+     *     array<Stage3\DynamicAttributeNode|Stage3\StaticAttributeNode>,
+     *     array<Stage3\SpecialAttributeNode>
+     * }
      */
     private static function parseAttributesNodes(array $nodes): array
     {
         /** @var array<Stage3\DynamicAttributeNode|Stage3\StaticAttributeNode> $attributesNodes */
         $attributesNodes = [];
 
+        /** @var Stage3\SpecialAttributeNode[] $specialAttributesNodes */
+        $specialAttributesNodes = [];
+
         foreach ($nodes as $node) {
             if ($node instanceof Stage2\DynamicAttributeNode) {
-                if (!in_array($node->name, self::RESERVED_DYNAMIC_ATTRIBUTES, true)) {
+                if (($specialAttributeKind = SpecialAttribute::tryFrom($node->name)) !== null) {
+                    $specialAttributesNodes[] = new Stage3\SpecialAttributeNode(
+                        kind: $specialAttributeKind,
+                        expression: $node->expression,
+                        delimiter: $node->delimiter,
+                    );
+                } else {
                     $attributesNodes[] = new Stage3\DynamicAttributeNode(
                         name: $node->name,
                         expression: $node->expression,
@@ -148,7 +159,9 @@ final class Stage3Parser
             }
         }
 
-        return $attributesNodes;
+        AttributesListChecker::checkAttributes($attributesNodes, $specialAttributesNodes);
+
+        return [$attributesNodes, $specialAttributesNodes];
     }
 
     /** @param Stage3\AbstractNode[] $children */
@@ -181,11 +194,12 @@ final class Stage3Parser
 
     /**
      * @param Stage3\AbstractNode[] $children
+     * @param array<Stage3\StaticAttributeNode|Stage3\DynamicAttributeNode> $attributes
      * @param ComponentMetadata[] $componentsMetadata
-     * @throws SapinException
      */
     private static function tryParseComponentCallNode(
         Stage2\PairedTagNode|Stage2\SelfClosedTagNode $node,
+        array $attributes,
         array $children,
         array $componentsMetadata,
     ): ?Stage3\ComponentCallNode {
@@ -193,28 +207,24 @@ final class Stage3Parser
             return null;
         }
 
-        $attributes = self::parseAttributesNodes($node->attributes);
-
         $props = [];
 
         foreach ($attributes as $key => $attribute) {
             foreach ($componentMetadata->properties as $property) {
                 if ($attribute->name === $property->name) {
-                    $props[] = match ($attribute::class) {
-                        Stage3\StaticAttributeNode::class => new Stage3\StaticComponentPropertyNode(
+                    if ($attribute instanceof Stage3\StaticAttributeNode) {
+                        $props[] = new Stage3\StaticComponentPropertyNode(
                             name: $attribute->name,
                             children: $attribute->children,
                             type: $property->type,
-                        ),
-                        Stage3\DynamicAttributeNode::class => new Stage3\DynamicComponentPropertyNode(
+                        );
+                    } elseif ($attribute instanceof Stage3\DynamicAttributeNode) {
+                        $props[] = new Stage3\DynamicComponentPropertyNode(
                             name: $attribute->name,
                             expression: $attribute->expression,
                             type: $attribute->expression,
-                        ),
-                        default => throw new SapinException(
-                            sprintf('Unexpected node "%s"', $node::class),
-                        ),
-                    };
+                        );
+                    }
 
                     unset($attributes[$key]);
                     break;
@@ -230,26 +240,25 @@ final class Stage3Parser
         );
     }
 
-    /** @param array<Stage2\DynamicAttributeNode|Stage2\StaticAttributeNode> $attributes */
+    /** @param Stage3\SpecialAttributeNode[] $specialAttributes */
     private static function applySpecialAttributes(
         Stage3\AbstractNode $node,
-        array $attributes,
+        array $specialAttributes,
     ): Stage3\AbstractNode {
-        for ($i = count($attributes) - 1; $i >= 0; --$i) {
-            $attribute = $attributes[$i];
-            if (!($attribute instanceof Stage2\DynamicAttributeNode)) {
+        for ($i = count($specialAttributes) - 1; $i >= 0; --$i) {
+            $attribute = $specialAttributes[$i];
+            if (!($attribute instanceof Stage3\SpecialAttributeNode)) {
                 continue;
             }
 
-            $node = match ($attribute->name) {
-                'if' => new Stage3\IfNode($attribute->expression, $node),
-                'else-if' => new Stage3\ElseIfNode($attribute->expression, $node),
-                'else' => new Stage3\ElseNode($node),
-                'foreach' => new Stage3\ForEachNode($attribute->expression, $node),
-                'for' => new Stage3\ForNode($attribute->expression, $node),
-                'slot' => new Stage3\SlotContentNode($attribute->expression, $node),
-                default => null,
-            } ?? $node;
+            $node = match ($attribute->kind) {
+                SpecialAttribute::IF => new Stage3\IfNode($attribute->expression, $node),
+                SpecialAttribute::ELSE_IF => new Stage3\ElseIfNode($attribute->expression, $node),
+                SpecialAttribute::ELSE => new Stage3\ElseNode($node),
+                SpecialAttribute::FOREACH => new Stage3\ForEachNode($attribute->expression, $node),
+                SpecialAttribute::FOR => new Stage3\ForNode($attribute->expression, $node),
+                SpecialAttribute::SLOT => new Stage3\SlotContentNode($attribute->expression, $node),
+            };
         }
 
         return $node;
