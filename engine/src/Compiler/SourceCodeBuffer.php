@@ -91,14 +91,29 @@ final class SourceCodeBuffer
         return $this;
     }
 
-    public function writePhpOpeningTag(): self
+    public function writeYieldExpr(string $expression): self
     {
-        return $this->write('<?php ');
+        $this->writefLn('yield %s;', $expression);
+
+        return $this;
     }
 
-    public function writePhpClosingTag(): self
+    public function writeYieldStr(string $content, bool $quoteSafe): self
     {
-        return $this->write('?>');
+        if (!$quoteSafe) {
+            $content = str_replace('\'', '\\\'', $content);
+        }
+
+        $this->writefLn('yield \'%s\';', $content);
+
+        return $this;
+    }
+
+    public function writefYieldStr(string $format, bool $quoteSafe, string|int|float ...$values): self
+    {
+        $this->writeYieldStr(sprintf($format, ...$values), $quoteSafe);
+
+        return $this;
     }
 
     public function getOut(): string

@@ -6,16 +6,11 @@ namespace Sapin\Engine\Parser\Template\Stage3;
 
 use ReflectionParameter;
 
-final class ComponentMetadata
+final class ComponentLoaderMetadata
 {
-    /**
-     * @param ReflectionParameter[] $parameters
-     * @param ComponentLoaderMetadata[] $loaders
-     */
+    /** @param ReflectionParameter[] $parameters */
     public function __construct(
-        public readonly string $name,
         public readonly string $classFqn,
         public readonly array $parameters,
-        public readonly array $loaders,
     ) {}
 }

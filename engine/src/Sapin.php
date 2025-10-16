@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sapin\Engine;
 
 use CallbackFilterIterator;
+use Closure;
 use Composer\Autoload\ClassLoader;
 use Generator;
 use RecursiveDirectoryIterator;
@@ -14,6 +15,8 @@ use ReflectionObject;
 use Sapin\Engine\Compiler\ComponentCompiler;
 use Sapin\Engine\Compiler\SourceCodeBuffer;
 use Sapin\Engine\Parser\Component\ComponentParser;
+use Sapin\Engine\Renderer\ComponentRenderNode;
+use Sapin\Engine\Renderer\Renderer;
 use SplFileInfo;
 use Stringable;
 use Throwable;
@@ -41,12 +44,22 @@ abstract class Sapin
         }
     }
 
-    /** @throws SapinException */
+    /**
+     * @param ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer
+     * @throws SapinException
+     */
     public static function render(
         object $component,
-        ?callable $slotRenderer = null,
-        RenderingContext $context = new RenderingContext(),
+        ?Closure $slotRenderer = null,
     ): void {
+        if ($component instanceof AsyncComponentLoaderInterface) {
+            $component->preLoad();
+        }
+
+        if ($component instanceof ComponentLoaderInterface) {
+            $component = $component->load();
+        }
+
         if (!($component instanceof ComponentInterface)) {
             throw new SapinException(sprintf(
                 'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
@@ -54,7 +67,8 @@ abstract class Sapin
             ));
         }
 
-        $component->render($context, $slotRenderer);
+        $renderer = new Renderer(streaming: true);
+        $renderer->render($component, $slotRenderer);
     }
 
     /** @throws SapinException */

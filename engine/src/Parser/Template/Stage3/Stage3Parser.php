@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Sapin\Engine\Parser\Template\Stage3;
 
+use ReflectionParameter;
 use Sapin\Engine\Parser\Template\Stage2\Node as Stage2;
 use Sapin\Engine\Parser\Template\Stage3\Node as Stage3;
 use Sapin\Engine\SapinException;
 use function count;
+use function in_array;
 use function sprintf;
 
 final class Stage3Parser
@@ -196,6 +198,8 @@ final class Stage3Parser
      * @param Stage3\AbstractNode[] $children
      * @param array<Stage3\StaticAttributeNode|Stage3\DynamicAttributeNode> $attributes
      * @param ComponentMetadata[] $componentsMetadata
+     *
+     * @throws SapinException
      */
     private static function tryParseComponentCallNode(
         Stage2\PairedTagNode|Stage2\SelfClosedTagNode $node,
@@ -207,22 +211,84 @@ final class Stage3Parser
             return null;
         }
 
+        if (self::attributesCoverRequiredParameters($attributes, $componentMetadata->parameters)) {
+            [$props, $extraAttributes] = self::splitAttributesByParameters($attributes, $componentMetadata->parameters);
+
+            return new Stage3\ComponentCallNode(
+                classFqn: $componentMetadata->classFqn,
+                props: $props,
+                attributes: $extraAttributes,
+                children: $children,
+            );
+        }
+
+        foreach ($componentMetadata->loaders as $loader) {
+            if (!self::attributesCoverRequiredParameters($attributes, $loader->parameters)) {
+                continue;
+            }
+
+            [$props, $extraAttributes] = self::splitAttributesByParameters($attributes, $loader->parameters);
+
+            return new Stage3\ComponentCallNode(
+                classFqn: $loader->classFqn,
+                props: $props,
+                attributes: $extraAttributes,
+                children: $children,
+            );
+        }
+
+        throw new SapinException(sprintf('No way found to create "%s" component', $node->name));
+    }
+
+    /**
+     * @param array<Stage3\StaticAttributeNode|Stage3\DynamicAttributeNode> $attributes
+     * @param ReflectionParameter[] $parameters
+     */
+    private static function attributesCoverRequiredParameters(array $attributes, array $parameters): bool
+    {
+        $attributeNames = array_map(fn ($a) => $a->name, $attributes);
+
+        foreach ($parameters as $parameter) {
+            if ($parameter->isOptional()) {
+                continue;
+            }
+
+            if (!in_array($parameter->name, $attributeNames, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<Stage3\StaticAttributeNode|Stage3\DynamicAttributeNode> $attributes
+     * @param ReflectionParameter[] $parameters
+     * @return array{
+     *      array<Stage3\StaticComponentPropertyNode|Stage3\DynamicComponentPropertyNode>,
+     *      array<Stage3\StaticAttributeNode|Stage3\DynamicAttributeNode>
+     *  }
+     */
+    private static function splitAttributesByParameters(array $attributes, array $parameters): array
+    {
         $props = [];
 
         foreach ($attributes as $key => $attribute) {
-            foreach ($componentMetadata->properties as $property) {
-                if ($attribute->name === $property->name) {
+            foreach ($parameters as $parameter) {
+                if ($attribute->name === $parameter->name) {
                     if ($attribute instanceof Stage3\StaticAttributeNode) {
                         $props[] = new Stage3\StaticComponentPropertyNode(
                             name: $attribute->name,
                             children: $attribute->children,
-                            type: $property->type,
+                            // TODO: don't use string type
+                            type: (string) $parameter->getType(),
                         );
                     } elseif ($attribute instanceof Stage3\DynamicAttributeNode) {
                         $props[] = new Stage3\DynamicComponentPropertyNode(
                             name: $attribute->name,
                             expression: $attribute->expression,
-                            type: $attribute->expression,
+                            // TODO: don't use string type
+                            type: (string) $parameter->getType(),
                         );
                     }
 
@@ -232,12 +298,7 @@ final class Stage3Parser
             }
         }
 
-        return new Stage3\ComponentCallNode(
-            $componentMetadata->classFqn,
-            $props,
-            array_values($attributes),
-            $children,
-        );
+        return [$props, array_values($attributes)];
     }
 
     /** @param Stage3\SpecialAttributeNode[] $specialAttributes */

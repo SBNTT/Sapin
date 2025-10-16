@@ -69,42 +69,56 @@ abstract class TemplateCompiler
         }
 
         $buffer
-            ->writePhpOpeningTag()
-            ->write('\\Sapin\\Engine\\Sapin::render(')
-            ->writef('new \\%s(', $node->classFqn)
-            ->subCompileEach(
-                $node->props,
-                fn ($property) => $buffer
-                ->subCompile(fn () => self::compileNode($property, $buffer))
-                ->write(','),
-            )
-            ->write(')');
+            ->writeLn('yield new \\Sapin\\Engine\\Renderer\\ComponentRenderNode(')
+            ->indent();
 
-        if (count($slots)) {
+        if (count($node->props) === 0) {
             $buffer
-                ->write(',function(string $slot,callable $default) use ($context){')
-                ->write('switch($slot){');
+                ->writefLn('component: new \\%s(),', $node->classFqn);
+        } else {
+            $buffer
+                ->writefLn('component: new \\%s(', $node->classFqn)
+                ->indent()
+                ->subCompileEach(
+                    $node->props,
+                    fn ($property) => $buffer
+                        ->subCompile(fn () => self::compileNode($property, $buffer))
+                        ->writeLn(','),
+                )
+                ->dedent()
+                ->writeLn('),');
+        }
 
+        if (count($slots) > 0) {
+            $buffer
+                ->writeLn('slotRenderer: function(string $slot) {')
+                ->indent();
+
+            $i = 0;
             foreach ($slots as $slotName => $slotChildren) {
                 $buffer
-                    ->writef("case'%s':", $slotName)
-                    ->writePhpClosingTag()
+                    ->writefLn('%sif ($slot === \'%s\') {', $i > 0 ? 'else' : '', $slotName)
+                    ->indent()
                     ->subCompile(fn () => self::compileNodes($slotChildren, $buffer))
-                    ->writePhpOpeningTag()
-                    ->write('break;');
+                    ->dedent()
+                    ->write('} ');
+
+                ++$i;
             }
 
             $buffer
-                ->write('default:$default();')
-                ->write('}}');
-        } else {
-            $buffer->write(',null');
+                ->writeLn('else {')
+                ->indent()
+                ->writeLn('return false;')
+                ->dedent()
+                ->writeLn('}')
+                ->dedent()
+                ->writeLn('},');
         }
 
         $buffer
-            ->write(',$context')
-            ->write(');')
-            ->writePhpClosingTag();
+            ->dedent()
+            ->writeLn(');');
     }
 
     private static function compileDynamicComponentPropertyNode(
@@ -113,7 +127,7 @@ abstract class TemplateCompiler
     ): void {
         $buffer
             ->write($node->name)
-            ->write(':')
+            ->write(': ')
             ->write($node->expression);
     }
 
@@ -139,23 +153,29 @@ abstract class TemplateCompiler
 
         $buffer
             ->write($node->name)
-            ->write(':')
+            ->write(': ')
             ->write(implode($childrenSeparator, $children));
     }
 
     private static function compileSlotDeclarationNode(Stage3\SlotDeclarationNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->writePhpOpeningTag()
-            ->write('$defaultSlotRenderer = function(){')
-            ->writePhpClosingTag()
-            ->subCompile(fn () => self::compileNodes($node->children, $buffer))
-            ->writePhpOpeningTag()
-            ->write('};')
-            ->write('$slotRenderer === null')
-            ->write(' ? $defaultSlotRenderer()')
-            ->writef(' : $slotRenderer(\'%s\', $defaultSlotRenderer);', $node->name)
-            ->writePhpClosingTag();
+            ->writefLn('if ($slotRenderer !== null && ($nodes = $slotRenderer(\'%s\')) !== false) {', $node->name)
+            ->indent()
+            ->writeLn('yield from $nodes;')
+            ->dedent()
+            ->write('}');
+
+        if (count($node->children) === 0) {
+            $buffer->writeLn('');
+        } else {
+            $buffer
+                ->writeLn(' else {')
+                ->indent()
+                ->subCompile(fn () => self::compileNodes($node->children, $buffer))
+                ->dedent()
+                ->writeLn('}');
+        }
     }
 
     private static function compileSlotContentNode(Stage3\SlotContentNode $node, SourceCodeBuffer $buffer): void
@@ -165,39 +185,47 @@ abstract class TemplateCompiler
 
     private static function compilePairedTagNode(Stage3\PairedTagNode $node, SourceCodeBuffer $buffer): void
     {
+        self::compileOpeningTagNode($buffer, $node->name, $node->attributes);
+
         $buffer
-            ->write('<')
-            ->write($node->name)
-            ->subCompileEach(
-                $node->attributes,
-                fn ($attribute) => $buffer
-                ->write(' ')
-                ->subCompile(fn () => self::compileNode($attribute, $buffer)),
-            )
-            ->write('>')
+            ->indent()
             ->subCompile(fn () => self::compileNodes($node->children, $buffer))
-            ->write('</')
-            ->write($node->name)
-            ->write('>');
+            ->dedent()
+            ->writefYieldStr('</%s>', true, $node->name);
     }
 
     private static function compileInlineTagNode(Stage3\InlineTagNode $node, SourceCodeBuffer $buffer): void
     {
-        $buffer
-            ->write('<')
-            ->write($node->name)
-            ->subCompileEach(
-                $node->attributes,
-                fn ($attribute) => $buffer
-                ->write(' ')
-                ->subCompile(fn () => self::compileNode($attribute, $buffer)),
-            )
-            ->write('>');
+        self::compileOpeningTagNode($buffer, $node->name, $node->attributes);
+    }
+
+    /** @param array<Stage3\DynamicAttributeNode|Stage3\StaticAttributeNode> $attributes */
+    private static function compileOpeningTagNode(SourceCodeBuffer $buffer, string $name, array $attributes): void
+    {
+        if (count($attributes) === 0) {
+            $buffer->writefYieldStr('<%s>', true, $name);
+        } else {
+            $buffer
+                ->writefYieldStr('<%s', true, $name)
+                ->indent()
+                ->subCompileEach(
+                    $attributes,
+                    fn ($attribute) => $buffer
+                        ->writeYieldStr(' ', true)
+                        ->subCompile(fn () => self::compileNode($attribute, $buffer)),
+                )
+                ->dedent()
+                ->writeYieldStr('>', true);
+        }
     }
 
     private static function compileRawNode(Stage3\RawNode $node, SourceCodeBuffer $buffer): void
     {
-        $buffer->write($node->content);
+        if ($node->content === '') {
+            return;
+        }
+
+        $buffer->writeYieldStr($node->content, quoteSafe: false);
     }
 
     private static function compileFragmentNode(Stage3\FragmentNode $node, SourceCodeBuffer $buffer): void
@@ -208,124 +236,76 @@ abstract class TemplateCompiler
     private static function compileInterpolationNode(Stage3\InterpolationNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->writePhpOpeningTag()
-            ->write('\\Sapin\\Engine\\Sapin::echo(')
-            ->write($node->expression)
-            ->write(');')
-            ->writePhpClosingTag();
+            ->writeYieldExpr($node->expression);
     }
 
     private static function compileForEachNode(Stage3\ForEachNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->writePhpOpeningTag()
-            ->write('foreach(')
-            ->write($node->expression)
-            ->write('){')
-            ->writePhpClosingTag()
+            ->writefLn('foreach (%s) {', $node->expression)
+            ->indent()
             ->subCompile(fn () => self::compileNode($node->child, $buffer))
-            ->writePhpOpeningTag()
-            ->write('}')
-            ->writePhpClosingTag();
+            ->dedent()
+            ->writeLn('}');
     }
 
     private static function compileForNode(Stage3\ForNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->writePhpOpeningTag()
-            ->write('for(')
-            ->write($node->expression)
-            ->write('){')
-            ->writePhpClosingTag()
+            ->writefLn('for (%s) {', $node->expression)
+            ->indent()
             ->subCompile(fn () => self::compileNode($node->child, $buffer))
-            ->writePhpOpeningTag()
-            ->write('}')
-            ->writePhpClosingTag();
+            ->dedent()
+            ->writeLn('}');
     }
 
     private static function compileIfNode(Stage3\IfNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->writePhpOpeningTag()
-            ->write('if(')
-            ->write($node->expression)
-            ->write('){')
-            ->writePhpClosingTag()
+            ->writefLn('if (%s) {', $node->expression)
+            ->indent()
             ->subCompile(fn () => self::compileNode($node->child, $buffer))
-            ->writePhpOpeningTag()
-            ->write('}');
-
-        $nextSiblingNode = self::getNodeNextSibling($node);
-        if (!($nextSiblingNode instanceof Stage3\ElseIfNode || $nextSiblingNode instanceof Stage3\ElseNode)) {
-            $buffer->writePhpClosingTag();
-        }
+            ->dedent()
+            ->writeLn('}');
     }
 
     private static function compileElseIfNode(Stage3\ElseIfNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->write('elseif(')
-            ->write($node->expression)
-            ->write('){')
-            ->writePhpClosingTag()
+            ->writefLn('elseif (%s) {', $node->expression)
+            ->indent()
             ->subCompile(fn () => self::compileNode($node->child, $buffer))
-            ->writePhpOpeningTag()
-            ->write('}');
-
-        $nextSiblingNode = self::getNodeNextSibling($node);
-        if (!($nextSiblingNode instanceof Stage3\ElseIfNode || $nextSiblingNode instanceof Stage3\ElseNode)) {
-            $buffer->writePhpClosingTag();
-        }
+            ->dedent()
+            ->writeLn('}');
     }
 
     private static function compileElseNode(Stage3\ElseNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->write('else{')
-            ->writePhpClosingTag()
+            ->writeLn('else {')
+            ->indent()
             ->subCompile(fn () => self::compileNode($node->child, $buffer))
-            ->writePhpOpeningTag()
-            ->write('}')
-            ->writePhpClosingTag();
+            ->dedent()
+            ->writeLn('}');
     }
 
     private static function compileDynamicAttributeNode(Stage3\DynamicAttributeNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->write($node->name)
-            ->write('=')
-            ->write($node->delimiter)
-            ->writePhpOpeningTag()
-            ->write('\\Sapin\\Engine\\Sapin::echo(')
-            ->write($node->expression)
-            ->write(');')
-            ->writePhpClosingTag()
-            ->write($node->delimiter);
+            ->writefYieldStr('%s=%s', true, $node->name, $node->delimiter)
+            ->indent()
+            ->writeYieldExpr($node->expression)
+            ->dedent()
+            ->writeYieldStr($node->delimiter, true);
     }
 
     private static function compileStaticAttributeNode(Stage3\StaticAttributeNode $node, SourceCodeBuffer $buffer): void
     {
         $buffer
-            ->write($node->name)
-            ->write('=')
-            ->write($node->delimiter)
+            ->writefYieldStr('%s=%s', true, $node->name, $node->delimiter)
+            ->indent()
             ->subCompile(fn () => self::compileNodes($node->children, $buffer))
-            ->write($node->delimiter);
-    }
-
-    private static function getNodeNextSibling(Stage3\AbstractNode $node): ?Stage3\AbstractNode
-    {
-        if (!($node->parent instanceof Stage3\AbstractCompositeNode)) {
-            return null;
-        }
-
-        $parentChildren = $node->parent->children ?? [];
-        foreach ($parentChildren as $i => $child) {
-            if ($child === $node) {
-                return $parentChildren[$i + 1] ?? null;
-            }
-        }
-
-        return null;
+            ->dedent()
+            ->writeYieldStr($node->delimiter, true);
     }
 }

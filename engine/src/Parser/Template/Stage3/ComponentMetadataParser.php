@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Sapin\Engine\Parser\Template\Stage3;
 
+use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionParameter;
+use Sapin\Engine\Attribute\ComponentLoader;
 use Sapin\Engine\Parser\Template\Stage2\Node as Stage2;
 use Sapin\Engine\Parser\Template\Stage3\Node\UseNode;
 use Sapin\Engine\SapinException;
@@ -32,11 +33,6 @@ abstract class ComponentMetadataParser
      */
     private static function parseUses(Stage2\PairedTagNode $templateNode): array
     {
-        $usesAttribute = array_filter(
-            $templateNode->attributes,
-            fn ($attr) => $attr instanceof Stage2\DynamicAttributeNode && $attr->name === 'uses',
-        );
-
         /** @var ?Stage2\DynamicAttributeNode $usesAttribute */
         $usesAttribute = null;
 
@@ -80,34 +76,36 @@ abstract class ComponentMetadataParser
     /** @throws SapinException */
     private static function getComponentMetadata(UseNode $useNode): ComponentMetadata
     {
-        // Usage of ReflectionClass may cause a sub compilation of the `$componentFqn` component
-        $componentConstructorParameters = array_map(
-            fn (ReflectionParameter $parameter) => new ComponentProperty(
-                name: $parameter->getName(),
-                type: (string) $parameter->getType(),
-            ),
-            self::getComponentConstructorParameters($useNode->classFqn),
+        if (!class_exists($useNode->classFqn)) {
+            throw new SapinException(sprintf('Unknown component class "%s"', $useNode->classFqn));
+        }
+
+        $class = new ReflectionClass($useNode->classFqn);
+
+        $loaders = array_map(
+            function (ReflectionAttribute $attribute) {
+                /** @var ComponentLoader $attributeInstance */
+                $attributeInstance = $attribute->newInstance();
+
+                if (!class_exists($attributeInstance->classFqn)) {
+                    throw new SapinException(sprintf('Unknown component loader class "%s"', $attributeInstance->classFqn));
+                }
+
+                $class = new ReflectionClass($attributeInstance->classFqn);
+
+                return new ComponentLoaderMetadata(
+                    classFqn: $attributeInstance->classFqn,
+                    parameters: $class->getConstructor()?->getParameters() ?? [],
+                );
+            },
+            $class->getAttributes(ComponentLoader::class),
         );
 
         return new ComponentMetadata(
             name: $useNode->componentName,
             classFqn: $useNode->classFqn,
-            properties: $componentConstructorParameters,
+            parameters: $class->getConstructor()?->getParameters() ?? [],
+            loaders: $loaders,
         );
-    }
-
-    /**
-     * @throws SapinException
-     * @return ReflectionParameter[]
-     */
-    private static function getComponentConstructorParameters(string $classFqn): array
-    {
-        if (!class_exists($classFqn)) {
-            throw new SapinException(sprintf('Unknown component class "%s"', $classFqn));
-        }
-
-        $class = new ReflectionClass($classFqn);
-
-        return $class->getConstructor()?->getParameters() ?? [];
     }
 }
