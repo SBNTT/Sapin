@@ -2,7 +2,9 @@
 
 namespace App\Component;
 
-final class Greeter
+use Sapin\Engine\Component;
+
+final class Greeter extends Component
 {
     public function __construct(
         public string $name,

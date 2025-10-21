@@ -2,13 +2,13 @@
 
 namespace App\Component;
 
-final class ErrorPage
+use Sapin\Engine\Component;
+
+final class ErrorPage extends Component
 {
     public function __construct(
         public string $message,
-    )
-    {
-    }
+    ) {}
 } ?>
 
 <template :uses="

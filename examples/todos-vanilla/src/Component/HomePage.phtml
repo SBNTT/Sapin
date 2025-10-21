@@ -3,8 +3,9 @@
 namespace App\Component;
 
 use App\Model\Task;
+use Sapin\Engine\Component;
 
-final class HomePage
+final class HomePage extends Component
 {
     /** @param Task[] $tasks */
     public function __construct(
