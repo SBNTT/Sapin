@@ -6,8 +6,8 @@ namespace Sapin\Engine\Compiler;
 
 use Closure;
 use Generator;
-use Sapin\Engine\ComponentInterface;
 use Sapin\Engine\Parser\Component\Node\ComponentNode;
+use Sapin\Engine\Renderable;
 
 abstract class ComponentCompiler
 {
@@ -16,7 +16,7 @@ abstract class ComponentCompiler
         $templateBuffer = new SourceCodeBuffer();
         TemplateCompiler::compileStage3Nodes($node->templateNodes, $templateBuffer);
 
-        $node->class->addImplement(ComponentInterface::class);
+        $node->class->addImplement(Renderable::class);
 
         $renderTemplateMethod = $node->class->addMethod('render');
         $renderTemplateMethod->addComment('@inheritdoc ');

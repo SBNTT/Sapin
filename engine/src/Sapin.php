@@ -45,11 +45,12 @@ abstract class Sapin
     }
 
     /**
+     * @param Component|ComponentLoaderInterface<Component> $component
      * @param ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer
      * @throws SapinException
      */
     public static function render(
-        object $component,
+        Component|ComponentLoaderInterface $component,
         ?Closure $slotRenderer = null,
     ): void {
         if ($component instanceof AsyncComponentLoaderInterface) {
@@ -60,22 +61,23 @@ abstract class Sapin
             $component = $component->load();
         }
 
-        if (!($component instanceof ComponentInterface)) {
-            throw new SapinException(sprintf(
-                'This is not a valid component to render: "%s". Subtype of Sapin\\ComponentInterface expected',
-                $component::class,
-            ));
-        }
+        Renderer::ensureIsRenderable($component);
 
         $renderer = new Renderer(streaming: true);
         $renderer->render($component, $slotRenderer);
     }
 
-    /** @throws SapinException */
-    public static function renderToString(object $component): string
-    {
+    /**
+     * @param Component|ComponentLoaderInterface<Component> $component
+     * @param ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer
+     * @throws SapinException
+     */
+    public static function renderToString(
+        Component|ComponentLoaderInterface $component,
+        ?Closure $slotRenderer = null,
+    ): string {
         ob_start();
-        self::render($component);
+        self::render($component, $slotRenderer);
 
         return ob_get_clean() ?: '';
     }

@@ -7,6 +7,7 @@ namespace Sapin\Engine\Parser\Template\Stage3;
 use ReflectionAttribute;
 use ReflectionClass;
 use Sapin\Engine\Attribute\ComponentLoader;
+use Sapin\Engine\ComponentLoaderInterface;
 use Sapin\Engine\Parser\Template\Stage2\Node as Stage2;
 use Sapin\Engine\Parser\Template\Stage3\Node\UseNode;
 use Sapin\Engine\SapinException;
@@ -88,10 +89,21 @@ abstract class ComponentMetadataParser
                 $attributeInstance = $attribute->newInstance();
 
                 if (!class_exists($attributeInstance->classFqn)) {
-                    throw new SapinException(sprintf('Unknown component loader class "%s"', $attributeInstance->classFqn));
+                    throw new SapinException(sprintf(
+                        'Unknown component loader class "%s"',
+                        $attributeInstance->classFqn,
+                    ));
                 }
 
                 $class = new ReflectionClass($attributeInstance->classFqn);
+
+                if (!$class->implementsInterface(ComponentLoaderInterface::class)) {
+                    throw new SapinException(sprintf(
+                        'Invalid component loader class "%s". It must implement "%s"',
+                        $attributeInstance->classFqn,
+                        ComponentLoaderInterface::class,
+                    ));
+                }
 
                 return new ComponentLoaderMetadata(
                     classFqn: $attributeInstance->classFqn,

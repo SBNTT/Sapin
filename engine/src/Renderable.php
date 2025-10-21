@@ -9,7 +9,7 @@ use Generator;
 use Sapin\Engine\Renderer\ComponentRenderNode;
 use Stringable;
 
-interface ComponentInterface
+interface Renderable
 {
     /**
      * @param ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer

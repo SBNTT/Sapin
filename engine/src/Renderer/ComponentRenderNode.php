@@ -6,7 +6,7 @@ namespace Sapin\Engine\Renderer;
 
 use Closure;
 use Generator;
-use Sapin\Engine\ComponentInterface;
+use Sapin\Engine\Component;
 use Sapin\Engine\ComponentLoaderInterface;
 use Stringable;
 
@@ -15,11 +15,11 @@ final class ComponentRenderNode
     public bool $preLoaded = false;
 
     /**
-     * @param ComponentInterface|ComponentLoaderInterface<ComponentInterface> $component
+     * @param Component|ComponentLoaderInterface<Component> $component
      * @param ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer
      */
     public function __construct(
-        public readonly ComponentInterface|ComponentLoaderInterface $component,
+        public readonly Component|ComponentLoaderInterface $component,
         public readonly ?Closure $slotRenderer = null,
     ) {}
 }

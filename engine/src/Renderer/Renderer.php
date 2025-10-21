@@ -7,11 +7,14 @@ namespace Sapin\Engine\Renderer;
 use Closure;
 use Generator;
 use Sapin\Engine\AsyncComponentLoaderInterface;
-use Sapin\Engine\ComponentInterface;
+use Sapin\Engine\Component;
 use Sapin\Engine\ComponentLoaderInterface;
+use Sapin\Engine\Renderable;
+use Sapin\Engine\SapinException;
 use Stringable;
 use function count;
 use function is_int;
+use function sprintf;
 
 final class Renderer
 {
@@ -28,8 +31,11 @@ final class Renderer
         $this->streaming = $streaming;
     }
 
-    /** ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer */
-    public function render(ComponentInterface $component, ?Closure $slotRenderer): void
+    /**
+     * @param ?Closure(string): (Generator<string|int|float|bool|Stringable|ComponentRenderNode>|false) $slotRenderer
+     * @throws SapinException
+     */
+    public function render(Renderable $component, ?Closure $slotRenderer): void
     {
         $this->discoverNodes($component->render($slotRenderer));
 
@@ -38,7 +44,24 @@ final class Renderer
         }
     }
 
-    /** @param Generator<string|int|float|bool|Stringable|ComponentRenderNode> $nodes */
+    /**
+     * @phpstan-assert Renderable $component
+     * @throws SapinException
+     */
+    public static function ensureIsRenderable(Component $component): void
+    {
+        if (!($component instanceof Renderable)) {
+            throw new SapinException(sprintf(
+                'This is not a valid component to render: "%s". Subtype of Sapin\\Renderable expected',
+                $component::class,
+            ));
+        }
+    }
+
+    /**
+     * @param Generator<string|int|float|bool|Stringable|ComponentRenderNode> $nodes
+     * @throws SapinException
+     */
     private function discoverNodes(Generator $nodes): void
     {
         foreach ($nodes as $node) {
@@ -59,11 +82,14 @@ final class Renderer
         }
     }
 
+    /** @throws SapinException */
     private function discoverComponentNodes(ComponentRenderNode $node, self $context): void
     {
         $subComponent = $node->component instanceof ComponentLoaderInterface
             ? $node->component->load()
             : $node->component;
+
+        self::ensureIsRenderable($subComponent);
 
         $context->discoverNodes($subComponent->render($node->slotRenderer));
     }
