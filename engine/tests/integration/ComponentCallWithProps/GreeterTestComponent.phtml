@@ -2,7 +2,9 @@
 
 namespace Sapin\Engine\Test\Integration\ComponentCallWithProps;
 
-final class GreeterTestComponent
+use Sapin\Engine\Component;
+
+final class GreeterTestComponent extends Component
 {
     public function __construct(
         public readonly string $name,

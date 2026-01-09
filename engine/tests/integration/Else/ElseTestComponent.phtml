@@ -2,7 +2,9 @@
 
 namespace Sapin\Engine\Test\Integration\Else;
 
-final class ElseTestComponent
+use Sapin\Engine\Component;
+
+final class ElseTestComponent extends Component
 {
     public function __construct(
             public int $a,

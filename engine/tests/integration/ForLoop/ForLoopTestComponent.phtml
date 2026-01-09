@@ -2,7 +2,9 @@
 
 namespace Sapin\Engine\Test\Integration\ForLoop;
 
-final class ForLoopTestComponent
+use Sapin\Engine\Component;
+
+final class ForLoopTestComponent extends Component
 {
     public function __construct(
             public readonly int $times,

@@ -28,14 +28,14 @@
   },
   "scripts": {
     "lint": [
-      "php -d memory_limit=-1 vendor/bin/phpstan analyze"
+      "vendor/bin/phpstan analyze"
     ],
     "format": [
-      "PHP_CS_FIXER_IGNORE_ENV=1 php -d memory_limit=-1 vendor/bin/php-cs-fixer fix src",
-      "PHP_CS_FIXER_IGNORE_ENV=1 php -d memory_limit=-1 vendor/bin/php-cs-fixer fix tests"
+      "vendor/bin/php-cs-fixer fix src",
+      "vendor/bin/php-cs-fixer fix tests"
     ],
     "test": [
-      "./vendor/bin/phpunit tests"
+      "vendor/bin/phpunit tests"
     ]
   }
 }

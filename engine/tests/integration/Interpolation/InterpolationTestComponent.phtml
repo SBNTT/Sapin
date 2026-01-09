@@ -2,7 +2,9 @@
 
 namespace Sapin\Engine\Test\Integration\Interpolation;
 
-final class InterpolationTestComponent
+use Sapin\Engine\Component;
+
+final class InterpolationTestComponent extends Component
 {
     public function __construct(
         public string $name,

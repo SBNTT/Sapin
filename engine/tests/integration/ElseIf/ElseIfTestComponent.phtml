@@ -2,7 +2,9 @@
 
 namespace Sapin\Engine\Test\Integration\ElseIf;
 
-final class ElseIfTestComponent
+use Sapin\Engine\Component;
+
+final class ElseIfTestComponent extends Component
 {
     public function __construct(
             public int $a,

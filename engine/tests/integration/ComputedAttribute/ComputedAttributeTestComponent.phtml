@@ -2,7 +2,9 @@
 
 namespace Sapin\Engine\Test\Integration\ComputedAttribute;
 
-final class ComputedAttributeTestComponent
+use Sapin\Engine\Component;
+
+final class ComputedAttributeTestComponent extends Component
 {
     public string $myProp = 'foo';
 } ?>
