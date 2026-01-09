@@ -13,6 +13,7 @@ final class TasksList extends Component
         public array $tasks,
     ) {}
 
+    /** @return TaskState[] */
     public function getTasksStates(): array
     {
         return TaskState::cases();
