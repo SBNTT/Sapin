@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Sapin\Engine\Compiler;
 
 use Sapin\Engine\Parser\Template\Stage3\Node as Stage3;
+use Sapin\Engine\Renderer\ComponentLoaderRenderNode;
+use Sapin\Engine\Renderer\ComponentRenderNode;
 use function array_key_exists;
 use function count;
 use function sprintf;
@@ -68,16 +70,24 @@ abstract class TemplateCompiler
             $slots[$slotName][] = $child;
         }
 
+        if ($node->isLoader) {
+            $nodeClass = ComponentLoaderRenderNode::class;
+            $nodeProperty = 'loader';
+        } else {
+            $nodeClass = ComponentRenderNode::class;
+            $nodeProperty = 'component';
+        }
+
         $buffer
-            ->writeLn('yield new \\Sapin\\Engine\\Renderer\\ComponentRenderNode(')
+            ->writefLn('yield new \\%s(', $nodeClass)
             ->indent();
 
         if (count($node->props) === 0) {
             $buffer
-                ->writefLn('component: new \\%s(),', $node->classFqn);
+                ->writefLn('%s: new \\%s(),', $nodeProperty, $node->classFqn);
         } else {
             $buffer
-                ->writefLn('component: new \\%s(', $node->classFqn)
+                ->writefLn('%s: new \\%s(', $nodeProperty, $node->classFqn)
                 ->indent()
                 ->subCompileEach(
                     $node->props,

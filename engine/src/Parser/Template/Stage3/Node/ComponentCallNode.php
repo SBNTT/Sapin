@@ -16,6 +16,7 @@ final class ComponentCallNode extends AbstractCompositeNode
         public readonly array $props,
         public readonly array $attributes,
         array $children,
+        public bool $isLoader,
     ) {
         parent::__construct($children);
     }

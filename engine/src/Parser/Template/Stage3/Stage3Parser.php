@@ -219,6 +219,7 @@ final class Stage3Parser
                 props: $props,
                 attributes: $extraAttributes,
                 children: $children,
+                isLoader: false,
             );
         }
 
@@ -234,6 +235,7 @@ final class Stage3Parser
                 props: $props,
                 attributes: $extraAttributes,
                 children: $children,
+                isLoader: true,
             );
         }
 

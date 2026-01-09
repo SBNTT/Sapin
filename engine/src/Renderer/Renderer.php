@@ -8,7 +8,6 @@ use Closure;
 use Generator;
 use Sapin\Engine\AsyncComponentLoaderInterface;
 use Sapin\Engine\Component;
-use Sapin\Engine\ComponentLoaderInterface;
 use Sapin\Engine\Renderable;
 use Sapin\Engine\SapinException;
 use Stringable;
@@ -18,7 +17,7 @@ use function sprintf;
 
 final class Renderer
 {
-    /** @var array<string|int|float|bool|Stringable|ComponentRenderNode> */
+    /** @var array<string|int|float|bool|Stringable|ComponentRenderNode|ComponentLoaderRenderNode> */
     private array $nodes;
 
     private bool $streaming;
@@ -59,15 +58,17 @@ final class Renderer
     }
 
     /**
-     * @param Generator<string|int|float|bool|Stringable|ComponentRenderNode> $nodes
+     * @param Generator<string|int|float|bool|Stringable|ComponentRenderNode|ComponentLoaderRenderNode> $nodes
      * @throws SapinException
      */
     private function discoverNodes(Generator $nodes): void
     {
         foreach ($nodes as $node) {
             if ($node instanceof ComponentRenderNode) {
-                if ($node->component instanceof AsyncComponentLoaderInterface && !$node->preLoaded) {
-                    $node->component->preLoad();
+                $this->discoverComponentNodes($node, $this);
+            } elseif ($node instanceof ComponentLoaderRenderNode) {
+                if ($node->loader instanceof AsyncComponentLoaderInterface && !$node->preLoaded) {
+                    $node->loader->preLoad();
                     $this->streaming = false;
                     $node->preLoaded = true;
                     $this->nodes[] = $node;
@@ -83,10 +84,10 @@ final class Renderer
     }
 
     /** @throws SapinException */
-    private function discoverComponentNodes(ComponentRenderNode $node, self $context): void
+    private function discoverComponentNodes(ComponentRenderNode|ComponentLoaderRenderNode $node, self $context): void
     {
-        $subComponent = $node->component instanceof ComponentLoaderInterface
-            ? $node->component->load()
+        $subComponent = $node instanceof ComponentLoaderRenderNode
+            ? $node->loader->load()
             : $node->component;
 
         self::ensureIsRenderable($subComponent);
@@ -94,6 +95,7 @@ final class Renderer
         $context->discoverNodes($subComponent->render($node->slotRenderer));
     }
 
+    /** @throws SapinException */
     private function cycle(): void
     {
         ++$this->cyclesCount;
@@ -104,7 +106,7 @@ final class Renderer
         while ($index < count($this->nodes)) {
             $node = $this->nodes[$index];
 
-            if ($node instanceof ComponentRenderNode) {
+            if ($node instanceof ComponentRenderNode || $node instanceof ComponentLoaderRenderNode) {
                 $this->discoverComponentNodes($node, $subRenderer = new self($this->streaming));
 
                 $this->streaming = $subRenderer->streaming;
